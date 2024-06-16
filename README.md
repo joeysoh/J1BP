@@ -1,3 +1,1 @@
-#J1BP
-
-For Splitting Bills
+Split Bills
