@@ -1,17 +1,38 @@
 <script setup>
 import { useStore } from "./../store.js";
-import { useRouter} from 'vue-router'
+import { useRouter, useRoute} from 'vue-router'
 import {onBeforeMount, ref, computed } from 'vue'
 const router = useRouter() //composition api reference
+const route = useRoute() 
 const store = useStore();
-const arrPersons = ref([]);
 const colorRequired = "purple-lighten-4";
+const data = store.data;
+var arrPersons = ref([]);
+
+function linkCopy(){
+  //navigator.clipboard.writeText(`${window.location.href}?data=${encodeURI(JSON.stringify(arrPersons))}`);
+  navigator.clipboard.writeText(`${location.host + route.path}?data=${encodeURI(JSON.stringify(arrPersons.value))}`);  
+  console.log(arrPersons.value);
+}
+
+function linkShare(){
+  router.push(`https://wa.me/?text=${location.host + route.path}?data=${encodeURI(JSON.stringify(arrPersons.value))}`);
+  console.log(arrPersons.value);
+}
 
 function sumArrayAttribute(items, prop){
     return items.reduce( function(a, b){
         return a + b[prop];
     }, 0);
 };
+
+const arrTotalCost = computed(()=>{
+  var arr = [];
+  for(var i = 0; i < arrPersons.value.length; i++){
+    arr.push(sumArrayAttribute(arrPersons.value[i].arrFoodItems, "cost"));
+  }
+  return arr;
+})
 
 const arrCalculate = computed(() =>{
   var arrPersonPayPerson = [];
@@ -25,7 +46,9 @@ const arrCalculate = computed(() =>{
       var per = arrPersons.value[i].arrFoodItems[j].cost / arrPersons.value[i].arrFoodItems[j].arrShare.length; //get per person cost by dividing cost of food over # of people
       arrPersons.value[i].arrFoodItems[j].per = per;
       for(var k = 0; k < arrPersons.value[i].arrFoodItems[j].arrShare.length; k++){ //for each person who shared the food
-        arrPersonPayPerson[arrPersons.value[i].arrFoodItems[j].arrShare[k]][i] += per;//person who shares food, has amount in array position for person who paid, added with cost of food per person
+        if(k != i){//excluding person who paid
+          arrPersonPayPerson[arrPersons.value[i].arrFoodItems[j].arrShare[k]][i] += per;//person who shares food, has amount in array position for person who paid, added with cost of food per person
+        }
       }
     }
   }
@@ -75,10 +98,16 @@ function addFood(index) {
   arrPersons.value[index].newCost = 0;
 }
 
-onBeforeMount(() => {  
-  for(let  i = 0; i< store.iCountPersons; i++){
+onBeforeMount(() => {      
+  if(data){
+    arrPersons = ref(data);
+    console.log(arrPersons.value);
+  } else {
+    arrPersons = ref([]);
+    for(let  i = 0; i< store.iCountPersons; i++){
       addPerson();
-  }  
+    }  
+  }
 })
 </script>
 
@@ -86,7 +115,8 @@ onBeforeMount(() => {
   <v-container>
     <v-row>
       <v-sheet class="px-6 mr-6">{{ store.iCountPersons }} Person(s)</v-sheet>
-      <v-btn @click="goToHome" density="compact">Back</v-btn>
+      <a href="/" v-if="store.data">Reset</a>
+      <v-btn v-else @click="goToHome" density="compact">Back</v-btn>
     </v-row>
   </v-container>
 
@@ -169,22 +199,23 @@ onBeforeMount(() => {
         </v-sheet>
       </template>
     </v-row>
-    <v-row>
+    <v-row v-if = "arrTotalCost.reduce((accumulator, currentValue) => accumulator + currentValue,0)>0">
       <v-sheet color="teal-accent-1">
-            Who pays whom how much:
+            Amount Owed:
             <template v-for="(arrPaymentAmount, indexPerson) in arrCalculate">
               <v-divider/>
-              <v-sheet>
+              <v-sheet v-if = "arrCalculate[indexPerson].reduce((accumulator, currentValue) => accumulator + currentValue,0)> 0">
                 {{ arrPersons[indexPerson].name }}
                 <template v-for="(paymentAmount,indexPaymentAmount) in arrPaymentAmount">
                   <div v-if="indexPaymentAmount != indexPerson && paymentAmount > 0">{{ paymentAmount.toFixed(2) }} 
                     <v-icon icon="mdi-arrow-right-thin"></v-icon> 
                     {{ arrPersons[indexPaymentAmount].name }}</div>
                 </template>
-            </v-sheet>
-            </template>
-            
-      </v-sheet>
-    </v-row>
+              </v-sheet>            
+            </template>           
+      </v-sheet>            
+      <v-btn density="compact" icon="mdi-content-copy" @Click = "linkCopy"></v-btn>
+      <v-btn density="compact" icon="mdi-share-variant-outline" @Click = "linkShare"></v-btn>            
+    </v-row>        
   </v-container>
 </template>

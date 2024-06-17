@@ -1,9 +1,19 @@
 <script setup>
-import { ref } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 import { useRouter} from 'vue-router'
 import { useStore } from "./../store.js";
 const store = useStore();// cannot destructure from object when declaring, have to reference via store.<variable/function>
 const router = useRouter() //composition api reference
+
+onBeforeMount(() => {  
+  const params = (new URL(location)).searchParams;
+  var data = params.get("data");
+  data = JSON.parse(decodeURI(data));
+  if(data){
+    store.setData(data);  
+    router.push('/details');
+  }
+})
 
 </script>
 <script>

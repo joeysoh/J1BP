@@ -3,7 +3,12 @@ import { ref } from 'vue'
 
 export const useStore = defineStore("store", ()=>{    
     const iCountPersons = ref(3);
+    const data = ref();
     
+    function setData(data){
+      this.data = data;
+    }
+
     function incrementPersons(value = 1) {
       this.iCountPersons += value;
       console.log(this.iCountPersons);
@@ -12,6 +17,6 @@ export const useStore = defineStore("store", ()=>{
       this.iCountPersons -= value;
       console.log(this.iCountPersons);
     }
-    return {iCountPersons,decrementPersons,incrementPersons}
+    return {iCountPersons,decrementPersons,incrementPersons, setData}
   }  
 );
