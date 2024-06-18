@@ -18,7 +18,7 @@ function linkCopy(){
 function linkShare(){
   var fullPath = window.location.href + "index.html";
   fullPath = fullPath.substring(0,fullPath.indexOf("/index.html"));
-  router.push(`https://wa.me/?text=$${fullPath}/?data=${encodeURI(JSON.stringify(arrPersons.value))}`);
+  window.open(`https://wa.me/?text=$${fullPath}/?data=${encodeURI(JSON.stringify(arrPersons.value))}`);
 }
 
 function sumArrayAttribute(items, prop){
