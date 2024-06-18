@@ -20,7 +20,6 @@ function linkCopy(){
 
 function linkShare(){
   router.push(`https://wa.me/?text=${location.host + route.path}?data=${encodeURI(JSON.stringify(arrPersons.value))}`);
-  //console.log(arrPersons.value);
 }
 
 function sumArrayAttribute(items, prop){
