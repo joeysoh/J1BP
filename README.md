@@ -1,7 +1,8 @@
-#J1BP
+#[J1BP](https://joeysoh.github.io/J1BP/)
 
 For Splitting Bills.
 
+Using Vue, Vuetify and Pinia.
 
 Similar sites:
 
