@@ -11,8 +11,11 @@ var arrPersons = ref([]);
 
 function linkCopy(){
   var fullPath = window.location.href + "index.html";
+  console.log(`full path: ${fullPath}`);
   fullPath = fullPath.substring(0,fullPath.indexOf("/index.html"));
+  console.log(`full path: ${fullPath}`);
   navigator.clipboard.writeText(`${fullPath}?data=${encodeURI(JSON.stringify(arrPersons.value))}`);   
+  console.log(`${fullPath}?data=${encodeURI(JSON.stringify(arrPersons.value))}`);
 }
 
 function linkShare(){
