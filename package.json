@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build-github": "vite build --base=/J1BP/"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
