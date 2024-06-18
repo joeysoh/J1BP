@@ -10,14 +10,13 @@ const data = store.data;
 var arrPersons = ref([]);
 
 function linkCopy(){
-  //navigator.clipboard.writeText(`${window.location.href}?data=${encodeURI(JSON.stringify(arrPersons))}`);
-  navigator.clipboard.writeText(`${location.host + route.path}?data=${encodeURI(JSON.stringify(arrPersons.value))}`);  
-  console.log(arrPersons.value);
+  var fullPath = window.location.href + "index.html";
+  fullPath = fullPath.substring(0,fullPath.indexOf("/index.html"));
+  navigator.clipboard.writeText(`${fullPath}?data=${encodeURI(JSON.stringify(arrPersons.value))}`);   
 }
 
 function linkShare(){
   router.push(`https://wa.me/?text=${location.host + route.path}?data=${encodeURI(JSON.stringify(arrPersons.value))}`);
-  console.log(arrPersons.value);
 }
 
 function sumArrayAttribute(items, prop){
