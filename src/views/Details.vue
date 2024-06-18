@@ -16,7 +16,9 @@ function linkCopy(){
 }
 
 function linkShare(){
-  router.push(`https://wa.me/?text=${location.host + route.path}?data=${encodeURI(JSON.stringify(arrPersons.value))}`);
+  var fullPath = window.location.href + "index.html";
+  fullPath = fullPath.substring(0,fullPath.indexOf("/index.html"));
+  router.push(`https://wa.me/?text=$${fullPath}/?data=${encodeURI(JSON.stringify(arrPersons.value))}`);
 }
 
 function sumArrayAttribute(items, prop){
