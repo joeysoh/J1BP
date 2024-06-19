@@ -18,8 +18,8 @@ function linkCopy(){
 function linkShare(){
   var fullPath = window.location.href + "index.html";
   fullPath = fullPath.substring(0,fullPath.indexOf("/index.html"));
-  console.log(`https://wa.me/?text=$${fullPath}/?data=${encodeURI(JSON.stringify(arrPersons.value))}`);
-  window.open(`https://wa.me/?text=$${fullPath}/?data=${encodeURI(JSON.stringify(arrPersons.value))}`);
+  console.log(`https://wa.me/?text=${fullPath}/?data=${encodeURI(JSON.stringify(arrPersons.value))}`);
+  window.open(`https://wa.me/?text=${fullPath}/?data=${encodeURI(JSON.stringify(arrPersons.value))}`);
 }
 
 function sumArrayAttribute(items, prop){
