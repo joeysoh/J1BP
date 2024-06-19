@@ -2,19 +2,44 @@
 import { onBeforeMount, ref } from 'vue'
 import { useRouter} from 'vue-router'
 import { useStore } from "./../store.js";
+
+//firebase
+import db from './../firebase'; //add firebase.js. refer to https://firebase.google.com/docs/firestore/quickstart web modular API to define db using getFirestore
+import { collection, addDoc, getDocs, getDoc, doc} from "firebase/firestore"; 
+
 const store = useStore();// cannot destructure from object when declaring, have to reference via store.<variable/function>
 const router = useRouter() //composition api reference
 
 onBeforeMount(() => {  
   const params = (new URL(location)).searchParams;
   var data = params.get("data");
-  data = JSON.parse(decodeURI(data));
+  //data = JSON.parse(decodeURI(data));
   if(data){
-    store.setData(data);  
-    router.push('/details');
+    getData(data);    
   }
 })
 
+
+async function readSnapShot(){
+  const querySnapshot = await getDocs(collection(db, "data"));
+  querySnapshot.forEach((doc) => {
+    console.log(`${doc.id} => ${doc.data()}`);
+  });
+}
+
+async function getData(id){
+  console.log("get data " + id);
+  const docRef = doc(db, "data", id); 
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    console.log("Document data:", docSnap.data());
+    store.setData(docSnap.data().arrPersons);  
+    router.push('/details');
+  } else {
+    // docSnap.data() will be undefined in this case
+    console.log("No such document!");
+  }
+}
 </script>
 <script>
 export default {

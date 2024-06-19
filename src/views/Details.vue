@@ -2,6 +2,11 @@
 import { useStore } from "./../store.js";
 import { useRouter, useRoute} from 'vue-router'
 import {onBeforeMount, ref, computed } from 'vue'
+
+//firebase
+import db from './../firebase';
+import { collection, addDoc, getDocs, getDoc, doc} from "firebase/firestore"; 
+
 const router = useRouter() //composition api reference
 const route = useRoute() 
 const store = useStore();
@@ -10,17 +15,25 @@ const data = store.data;
 var arrPersons = ref([]);
 
 function linkCopy(){
-  var fullPath = window.location.href + "index.html";
-  fullPath = fullPath.substring(0,fullPath.indexOf("/index.html"));
+  var fullPath = window.location.href.substring(0,window.location.href.lastIndexOf("/"));
   navigator.clipboard.writeText(`${fullPath}/?data=${encodeURI(JSON.stringify(arrPersons.value))}`);     
 }
 
-function linkShare(){
-  var fullPath = window.location.href + "index.html";
-  fullPath = fullPath.substring(0,fullPath.indexOf("/index.html"));
-  console.log(`https://wa.me/?text=${fullPath}/?data=${encodeURI(JSON.stringify(arrPersons.value))}`);
-  window.open(`https://wa.me/?text=${fullPath}/?data=${encodeURI(JSON.stringify(arrPersons.value))}`);
+async function linkShare(){
+  var fullPath = window.location.href.substring(0,window.location.href.lastIndexOf("/"));
+  try {
+    const docRef = await addDoc(collection(db, "data"), {
+      arrPersons : arrPersons.value
+    });
+    var url = `${fullPath}/?data=${docRef.id}`;
+    console.log(`url: ${url}`);
+    console.log("Document written with ID: ", docRef.id);
+    window.open(`https://wa.me/?text=${url}`);
+  } catch (e) {
+    console.error("Error adding document: ", e);
+  }
 }
+
 
 function sumArrayAttribute(items, prop){
     return items.reduce( function(a, b){

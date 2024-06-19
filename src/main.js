@@ -24,4 +24,3 @@ app.use(vuetify);
 app.use(router).mount('#app')//App is root component
 app.use(createPinia());
 
-
