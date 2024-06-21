@@ -9,13 +9,21 @@ import { collection, addDoc, getDocs, getDoc, doc} from "firebase/firestore";
 
 const store = useStore();// cannot destructure from object when declaring, have to reference via store.<variable/function>
 const router = useRouter() //composition api reference
+const hasData = ref(false);
 
 onBeforeMount(() => {  
   const params = (new URL(location)).searchParams;
-  var data = params.get("data");
-  //data = JSON.parse(decodeURI(data));
+  var fullpath = window.location.href.substring(0,window.location.href.lastIndexOf("/"));
+  var data = params.get("data");  
+  var share = params.get("share");     
+
+  store.setFullPath(fullpath);  
   if(data){
-    getData(data);    
+    store.setData(JSON.parse(decodeURI(data)));
+    router.push('/details');  
+  } else if(share){
+    hasData.value = true;
+    getShareData(share,hasData);
   }
 })
 
@@ -27,16 +35,17 @@ async function readSnapShot(){
   });
 }
 
-async function getData(id){
-  console.log("get data " + id);
-  const docRef = doc(db, "data", id); 
+async function getShareData(share,hasData){
+  console.log("get data " + share);
+  const docRef = doc(db, "data", share); 
   const docSnap = await getDoc(docRef);
   if (docSnap.exists()) {
     console.log("Document data:", docSnap.data());
-    store.setData(docSnap.data().arrPersons);  
+    store.setData(docSnap.data().arrPersons);      
     router.push('/details');
   } else {
-    // docSnap.data() will be undefined in this case
+    // docSnap.data() will be undefined in this case    
+    hasData.value = false;
     console.log("No such document!");
   }
 }
@@ -51,8 +60,17 @@ export default {
 }
 </script>
 <template>      
-    <v-container
-        class="bg-surface-variant ma-4">  
+    <v-container v-if="hasData" class="bg-surface-variant ma-1">
+      <v-row>
+          <v-col cols="12">
+            <v-sheet class="flex-1-1-100 ma-0 pa-0">
+              Please wait...
+            </v-sheet>
+          </v-col>
+        </v-row>
+    </v-container>
+    <v-container v-else 
+        class="bg-surface-variant ma-1">  
         <v-row>
           <v-col cols="12">
             <v-sheet class="flex-1-1-100 ma-2 pa-2">

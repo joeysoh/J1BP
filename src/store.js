@@ -4,6 +4,11 @@ import { ref } from 'vue'
 export const useStore = defineStore("store", ()=>{    
     const iCountPersons = ref(3);
     const data = ref();
+    const fullpath = ref();
+
+    function setFullPath(path){
+      this.fullpath = path;
+    }
     
     function setData(data){
       this.data = data;
@@ -17,6 +22,6 @@ export const useStore = defineStore("store", ()=>{
       this.iCountPersons -= value;
       console.log(this.iCountPersons);
     }
-    return {iCountPersons,decrementPersons,incrementPersons, setData}
+    return {iCountPersons,decrementPersons,incrementPersons, setData, setFullPath}
   }  
 );

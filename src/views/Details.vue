@@ -14,18 +14,16 @@ const colorRequired = "purple-lighten-4";
 const data = store.data;
 var arrPersons = ref([]);
 
-function linkCopy(){
-  var fullPath = window.location.href.substring(0,window.location.href.lastIndexOf("/"));
-  navigator.clipboard.writeText(`${fullPath}/?data=${encodeURI(JSON.stringify(arrPersons.value))}`);     
+function linkCopy(){  
+  navigator.clipboard.writeText(`${store.fullpath}/?data=${encodeURI(JSON.stringify(arrPersons.value))}`);     
 }
 
-async function linkShare(){
-  var fullPath = window.location.href.substring(0,window.location.href.lastIndexOf("/"));
+async function linkShare(){  
   try {
     const docRef = await addDoc(collection(db, "data"), {
       arrPersons : arrPersons.value
     });
-    var url = `${fullPath}/?data=${docRef.id}`;
+    var url = `${store.fullpath}/?share=${docRef.id}`;
     console.log(`url: ${url}`);
     console.log("Document written with ID: ", docRef.id);
     window.open(`https://wa.me/?text=${url}`);
@@ -114,9 +112,8 @@ function addFood(index) {
 }
 
 onBeforeMount(() => {      
-  if(data){
-    arrPersons = ref(data);
-    console.log(arrPersons.value);
+  if(data){    
+    arrPersons = ref(data);    
   } else {
     arrPersons = ref([]);
     for(let  i = 0; i< store.iCountPersons; i++){
@@ -130,7 +127,7 @@ onBeforeMount(() => {
   <v-container>
     <v-row>
       <v-sheet class="px-6 mr-6">{{ store.iCountPersons }} Person(s)</v-sheet>
-      <a href="/" v-if="store.data">Reset</a>
+      <a :href="store.fullpath" v-if="store.data">Reset</a>
       <v-btn v-else @click="goToHome" density="compact">Back</v-btn>
     </v-row>
   </v-container>
