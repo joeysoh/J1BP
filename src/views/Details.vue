@@ -132,7 +132,7 @@ onBeforeMount(() => {
     </v-row>
   </v-container>
 
-  <v-container class="bg-surface-variant ma-0">
+  <v-container class="bg-surface-variant ma-0"><v-form>
     <v-row>      
       <template v-for="(person, indexPerson) in arrPersons">        
         <v-sheet class="ma-1 pa-1" style="min-width: 300px">
@@ -168,7 +168,7 @@ onBeforeMount(() => {
                         type="number"
                         prepend-inner-icon="mdi-currency-usd"
                         variant="outlined"
-                        v-model="foodItem.cost"/>                  
+                        v-model.number="foodItem.cost"/>                  
                   <v-btn @click="removeFood(indexPerson,indexFood)" icon="$minus" density="compact" variant="outlined"/>
                   <v-btn @click="toggleShare(indexPerson,indexFood)" icon="mdi-account-multiple" density="compact" variant="outlined" :color="foodItem.arrShare.length == arrPersons.length ? 'none':'orange'"/>
                 </v-row>
@@ -204,7 +204,7 @@ onBeforeMount(() => {
                     prepend-inner-icon="mdi-currency-usd"
                     type="number"
                     variant="outlined"
-                    v-model="person.newCost">
+                    v-model.number="person.newCost">
                   </v-text-field>
           <v-btn @click="addFood(indexPerson)" icon="$plus" density="compact" variant="outlined" 
             :disabled = "person.name.trim().length < 1 || person.newCost == 0 || person.newFood.trim().length < 1"/>
@@ -229,5 +229,5 @@ onBeforeMount(() => {
       <v-btn density="compact" icon="mdi-content-copy" @Click = "linkCopy"></v-btn>
       <v-btn density="compact" icon="mdi-share-variant-outline" @Click = "linkShare"></v-btn>            
     </v-row>        
-  </v-container>
+  </v-form></v-container>
 </template>
