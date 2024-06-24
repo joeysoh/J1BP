@@ -20,13 +20,14 @@ function linkCopy(){
 }
 
 const linkURL = computed(()=>{
+  var url = `${store.fullpath}/?data=${encodeURI(JSON.stringify(arrPersons.value))}`;
   var canvas = document.getElementById('canvas');
-  QRCode.toCanvas(canvas, `${store.fullpath}/?data=${encodeURI(JSON.stringify(arrPersons.value))}`, {width:150}, function (error) {
+  QRCode.toCanvas(canvas, url, function (error) {
   if (error) console.error(error)
     console.log('qr code error');
   })
 
-  return `${store.fullpath}/?data=${encodeURI(JSON.stringify(arrPersons.value))}`;
+  return url;
 });
 
 async function linkShare(){  
@@ -241,10 +242,10 @@ onBeforeMount(() => {
       <v-btn density="compact" icon="mdi-content-copy" @Click = "linkCopy"></v-btn>
       <v-btn density="compact" icon="mdi-share-variant-outline" @Click = "linkShare"></v-btn>     
       <v-btn density="compact" icon="mdi-qrcode" @click = "showQR = !showQR; linkURL;"></v-btn>
-      <v-sheet @click = "showQR = !showQR;" :elevation="24"  class="position-absolute top-0 left-0" v-show = "showQR" rounded
-        height="100%" width="100%" color="teal-lighten-3">
-        <canvas id="canvas"></canvas>
-      </v-sheet>
+      <!-- <v-sheet @click = "showQR = !showQR;" :elevation="24"  class="position-absolute top-0 left-0" v-show = "showQR" rounded
+        height="100%" width="100%" color="teal-lighten-3"> -->      
+          <canvas id="canvas" v-show = "showQR" @click = "showQR = !showQR;"></canvas>
+      <!-- </v-sheet> -->
     </v-row>        
   </v-form></v-container>
 </template>
