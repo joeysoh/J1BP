@@ -21,7 +21,7 @@ function linkCopy(){
 
 const linkURL = computed(()=>{
   var canvas = document.getElementById('canvas');
-  QRCode.toCanvas(canvas, `${store.fullpath}/?data=${encodeURI(JSON.stringify(arrPersons.value))}`, function (error) {
+  QRCode.toCanvas(canvas, `${store.fullpath}/?data=${encodeURI(JSON.stringify(arrPersons.value))}`, {width:150}, function (error) {
   if (error) console.error(error)
     console.log('qr code error');
   })
