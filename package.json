@@ -13,6 +13,8 @@
     "@mdi/font": "^7.4.47",
     "firebase": "^10.12.2",
     "pinia": "^2.1.7",
+    "qrcode": "^1.5.3",
+    "qrcode-reader-vue3": "^3.1.2",
     "vue": "^3.4.21",
     "vue-router": "^4.3.2",
     "vuetify": "^3.6.8"

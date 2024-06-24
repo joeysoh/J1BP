@@ -1,22 +1,33 @@
 <script setup>
 import { useStore } from "./../store.js";
 import { useRouter, useRoute} from 'vue-router'
-import {onBeforeMount, ref, computed } from 'vue'
+import {onBeforeMount, onMounted, ref, computed, watch } from 'vue'
+import QRCode from 'qrcode'
 
 //firebase
 import db from './../firebase';
 import { collection, addDoc, getDocs, getDoc, doc} from "firebase/firestore"; 
 
 const router = useRouter() //composition api reference
-const route = useRoute() 
+const showQR = ref(false);
 const store = useStore();
 const colorRequired = "purple-lighten-4";
 const data = store.data;
 var arrPersons = ref([]);
 
 function linkCopy(){  
-  navigator.clipboard.writeText(`${store.fullpath}/?data=${encodeURI(JSON.stringify(arrPersons.value))}`);     
+  navigator.clipboard.writeText(linkURL.value);     
 }
+
+const linkURL = computed(()=>{
+  var canvas = document.getElementById('canvas');
+  QRCode.toCanvas(canvas, `${store.fullpath}/?data=${encodeURI(JSON.stringify(arrPersons.value))}`, function (error) {
+  if (error) console.error(error)
+    console.log('qr code error');
+  })
+
+  return `${store.fullpath}/?data=${encodeURI(JSON.stringify(arrPersons.value))}`;
+});
 
 async function linkShare(){  
   try {
@@ -84,6 +95,7 @@ const arrCalculate = computed(() =>{
   return arrPersonPayPerson;
 });
 
+
 function goToHome(){  
   router.push('/') 
 }
@@ -125,7 +137,7 @@ onBeforeMount(() => {
 
 <template>
   <v-container>
-    <v-row>
+    <v-row>      
       <v-sheet class="px-6 mr-6">{{ store.iCountPersons }} Person(s)</v-sheet>
       <a :href="store.fullpath" v-if="store.data">Reset</a>
       <v-btn v-else @click="goToHome" density="compact">Back</v-btn>
@@ -227,7 +239,12 @@ onBeforeMount(() => {
             </template>           
       </v-sheet>            
       <v-btn density="compact" icon="mdi-content-copy" @Click = "linkCopy"></v-btn>
-      <v-btn density="compact" icon="mdi-share-variant-outline" @Click = "linkShare"></v-btn>            
+      <v-btn density="compact" icon="mdi-share-variant-outline" @Click = "linkShare"></v-btn>     
+      <v-btn density="compact" icon="mdi-qrcode" @click = "showQR = !showQR; linkURL;"></v-btn>
+      <v-sheet @click = "showQR = !showQR;" :elevation="24"  class="position-absolute top-0 left-0" v-show = "showQR" rounded
+        height="100%" width="100%" color="teal-lighten-3">
+        <canvas id="canvas"></canvas>
+      </v-sheet>
     </v-row>        
   </v-form></v-container>
 </template>
