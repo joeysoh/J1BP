@@ -13,6 +13,7 @@ const showQR = ref(false);
 const store = useStore();
 const colorRequired = "purple-lighten-4";
 const data = store.data;
+const canvas = ref(null);
 var arrPersons = ref([]);
 
 function linkCopy(){  
@@ -21,12 +22,6 @@ function linkCopy(){
 
 const linkURL = computed(()=>{
   var url = `${store.fullpath}/?data=${encodeURI(JSON.stringify(arrPersons.value))}`;
-  var canvas = document.getElementById('canvas');
-  QRCode.toCanvas(canvas, url, function (error) {
-  if (error) console.error(error)
-    console.log('qr code error');
-  })
-
   return url;
 });
 
@@ -91,15 +86,24 @@ const arrCalculate = computed(() =>{
       }
     }
   }
-
-  //console.log("computed " + new Date(8.64e15).toString());
+  
   return arrPersonPayPerson;
 });
 
+onMounted(() => {
+})
 
 function goToHome(){  
   router.push('/') 
 }
+watch(canvas, async(newCanvas,oldCanvas) => {
+  if(newCanvas){
+    QRCode.toCanvas(newCanvas, linkURL.value, function (error) {
+    if (error) console.error(error)
+      console.log('qr code error');
+    })
+  }
+});
 
 function addPerson() {          
   arrPersons.value.push({name: "Name " + (arrPersons.value.length + 1), arrFoodItems: [], newFood : "", newCost: 0});
@@ -118,8 +122,7 @@ function addFood(index) {
     food: arrPersons.value[index].newFood
     , cost: parseFloat(arrPersons.value[index].newCost)
     , showShare: false, arrShare:[...Array(arrPersons.value.length).keys()]
-    , per: 0});
-  console.log(arrPersons.value[index].arrFoodItems);
+    , per: 0});  
   arrPersons.value[index].newFood = "";
   arrPersons.value[index].newCost = 0;
 }
@@ -243,9 +246,20 @@ onBeforeMount(() => {
       <v-btn density="compact" icon="mdi-share-variant-outline" @Click = "linkShare"></v-btn>     
       <v-btn density="compact" icon="mdi-qrcode" @click = "showQR = !showQR; linkURL;"></v-btn>
       <!-- <v-sheet @click = "showQR = !showQR;" :elevation="24"  class="position-absolute top-0 left-0" v-show = "showQR" rounded
-        height="100%" width="100%" color="teal-lighten-3"> -->      
-          <canvas id="canvas" v-show = "showQR" @click = "showQR = !showQR;"></canvas>
-      <!-- </v-sheet> -->
+        height="100%" width="100%" color="teal-lighten-3">          
+      </v-sheet> -->
     </v-row>        
-  </v-form></v-container>
+
+    <v-dialog v-model="showQR" width="auto" @click = "showQR = !showQR;">
+        <v-card>
+          <canvas id="canvas" ref="canvas"></canvas>      
+        </v-card>
+    </v-dialog>
+
+    
+  </v-form>
+  
+</v-container>  
+      
+      
 </template>
