@@ -208,6 +208,7 @@ onBeforeMount(() => {
           <template v-for="(foodItem, indexFood) in person.arrFoodItems">            
               <v-container>
                 <v-row class="flex-row">
+                  <v-btn @click="toggleShare(indexPerson,indexFood)" icon="mdi-account-multiple" density="compact" :disabled="foodItem.arrShare.length<1" variant="outlined" :color="foodItem.arrShare.length == arrPersons.length ? 'none':'orange'"/>
                   <v-text-field style="width:30%"
                         :bg-color="foodItem.food?.length > 0 ? 'none' : colorRequired"
                         density="compact"
@@ -224,8 +225,7 @@ onBeforeMount(() => {
                         prepend-inner-icon="mdi-currency-usd"
                         variant="outlined"
                         v-model.number="foodItem.cost"/>                  
-                  <v-btn @click="removeFood(indexPerson,indexFood)" icon="$minus" density="compact" variant="outlined"/>
-                  <v-btn @click="toggleShare(indexPerson,indexFood)" icon="mdi-account-multiple" density="compact" :disabled="foodItem.arrShare.length<1" variant="outlined" :color="foodItem.arrShare.length == arrPersons.length ? 'none':'orange'"/>
+                  <v-btn @click="removeFood(indexPerson,indexFood)" icon="$minus" density="compact" variant="outlined"/>                  
                 </v-row>
                 <v-row v-if="foodItem.showShare">
                   <v-divider/>
@@ -247,6 +247,8 @@ onBeforeMount(() => {
           
           <v-container>
             <v-row class="flex-row">
+                <v-btn @click="addFood(indexPerson)" icon="$plus" density="compact" variant="outlined" 
+                    :disabled = "person.newCost == 0 || person.newFood?.trim().length < 1"/>
                 <v-text-field style="width:30%"
                           :bg-color="person.newFood?.length > 0 || person.newCost > 0 ? colorRequired:'none'"
                           density="compact"
@@ -261,13 +263,9 @@ onBeforeMount(() => {
                       prepend-inner-icon="mdi-currency-usd"
                       type="number"
                       variant="outlined"
-                      v-model.number="person.newCost"/>
-                <v-sheet>                  
+                      v-model.number="person.newCost"/>                
                   <v-btn @click="person.newFood=''; person.newCost=0" icon="mdi-close" density="compact" variant="outlined" 
-                    :disabled = "person.newFood?.length == 0 && person.newCost == 0"/>
-                  <v-btn @click="addFood(indexPerson)" icon="$plus" density="compact" variant="outlined" 
-                  :disabled = "person.newCost == 0 || person.newFood?.trim().length < 1"/>
-                </v-sheet>
+                    :disabled = "person.newFood?.length == 0 && person.newCost == 0"/>                  
               </v-row>
             </v-container>
             
