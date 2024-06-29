@@ -19,7 +19,39 @@ onBeforeMount(() => {
 
   store.setFullPath(fullpath);  
   if(data){
-    store.setData(JSON.parse(decodeURI(data)));
+    var arrNames = [];
+    var arrFood = [];
+    var arrCost = [];
+    var arrShare = [];
+    var arr = decodeURI(data).split('`');    
+    arrNames = arr[0].split("~");
+    arrFood = arr[1].split("~");
+    arrCost = arr[2].split("~");
+    arrShare = arr[3].split("~");
+    var arrPersons = [];
+
+    for(var i = 0; i< arrNames.length; i++){
+      var p = {name: arrNames[i], arrFoodItems: [], newFood : "", newCost: 0};
+      if(arrFood.length - 1 >= i){        
+        var _arrFoodItems = arrFood[i].split('°');
+        var _arrCostItems = arrCost[i].split('°');
+        var _arrShareItems = arrShare[i].split('°');
+        for(var j = 0; j < _arrFoodItems.length; j++){          
+          p.arrFoodItems.push({
+            food: _arrFoodItems[j]
+            ,cost: parseFloat(_arrCostItems[j])
+            , showShare: false
+            , arrShare: _arrShareItems[j].split(",").map(Number)
+            , per: _arrCostItems[j] ? Math.round((parseFloat(_arrCostItems[j]) / _arrShareItems[j].length) * 100)/100 : 0
+          });
+        }
+      }
+      arrPersons.push(p);
+    }       
+    console.log("test ");
+    console.log(arrPersons);
+    //store.setData(JSON.parse(decodeURI(data)));
+    store.setData(arrPersons);
     router.push('/details');  
   } else if(share){
     hasData.value = true;

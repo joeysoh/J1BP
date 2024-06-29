@@ -20,9 +20,47 @@ function linkCopy(){
   navigator.clipboard.writeText(linkURL.value);     
 }
 
+function removeInvalidChar(arr){  
+  for(var i = 0; i < arr.length; i++){
+    if(typeof(arr[i]) === "string"){
+      arr[i] = arr[i].replaceAll("~","-").replaceAll("`","'").replaceAll("°","º");
+    } else if(Array.isArray(arr[i])){
+      removeInvalidChar(arr[i]);
+    }
+  }
+}
+
+
 const linkURL = computed(()=>{
-  var url = `${store.fullpath}/?data=${encodeURI(JSON.stringify(arrPersons.value))}`;
-  return url;
+  var arrNames = [];
+  var arrFood = [];
+  var arrCost = [];
+  var arrShare = [];
+  var _arrPersons = arrPersons.value.toSorted(
+    function(a,b){
+      return (b.arrFoodItems.length - a.arrFoodItems.length);
+    }
+  );
+  for(var i = 0; i < _arrPersons.length; i++){
+    arrNames.push(_arrPersons[i].name);
+    if(_arrPersons[i].arrFoodItems.length > 0){
+      var _arrFood = [];
+      var _arrCost = [];
+      var _arrShare = [];
+      for(var j = 0; j < _arrPersons[i].arrFoodItems.length; j++){      
+          _arrFood.push(_arrPersons[i].arrFoodItems[j].food);
+          _arrCost.push(Math.round(_arrPersons[i].arrFoodItems[j].cost * 100)/100);
+          _arrShare.push(_arrPersons[i].arrFoodItems[j].arrShare);      
+      }
+      removeInvalidChar(_arrFood);
+      removeInvalidChar(_arrCost);
+      arrFood.push(_arrFood.join("°"));
+      arrCost.push(_arrCost.join("°"));
+      arrShare.push(_arrShare.join("°"));
+    }
+  }
+  removeInvalidChar(arrNames);  
+  return `${store.fullpath}/?data=${arrNames.join("~") + "`" + arrFood.join("~") + "`" + arrCost.join("~") + "`" + arrShare.join("~")}`;
 });
 
 async function linkShare(){  
@@ -36,7 +74,7 @@ async function linkShare(){
     window.open(`https://wa.me/?text=${url}`);
   } catch (e) {
     console.error("Error adding document: ", e);
-  }
+  }  
 }
 
 
@@ -106,7 +144,8 @@ watch(canvas, async(newCanvas,oldCanvas) => {
 });
 
 function addPerson() {          
-  arrPersons.value.push({name: "Name " + (arrPersons.value.length + 1), arrFoodItems: [], newFood : "", newCost: 0});
+  console.log("arrPersons");
+  arrPersons.value.push({name: "Name " + (arrPersons.value.length + 1), arrFoodItems: [], newFood : "a", newCost: 10});
 }
 
 function removeFood(indexPerson, indexFood){
