@@ -23,7 +23,7 @@ function linkCopy(){
 function removeInvalidChar(arr){  
   for(var i = 0; i < arr.length; i++){
     if(typeof(arr[i]) === "string"){
-      arr[i] = arr[i].replaceAll("~","-").replaceAll("`","'").replaceAll("°","º");
+      arr[i] = arr[i].replaceAll("~","-").replaceAll("`","'").replaceAll("°","º").replace('é','e');
     } else if(Array.isArray(arr[i])){
       removeInvalidChar(arr[i]);
     }
@@ -60,7 +60,7 @@ const linkURL = computed(()=>{
     }
   }
   removeInvalidChar(arrNames);  
-  return `${store.fullpath}/?data=${arrNames.join("~") + "`" + arrFood.join("~") + "`" + arrCost.join("~") + "`" + arrShare.join("~")}`;
+  return `${store.fullpath}/?data=${(arrNames.join("~") + "`" + arrFood.join("~") + "`" + arrCost.join("~") + "`" + arrShare.join("~")).replaceAll(" ","é")}`;
 });
 
 async function linkShare(){  
