@@ -51,7 +51,7 @@ onBeforeMount(() => {
       if(crc.crc16(arrNames.join("~") + "`" + arrFood.join("~") + "`" + arrCost.join("~") + "`" + arrShare.join("~")).toString() == strCRC){
         var arrPersons = [];
         for(var i = 0; i< arrNames.length; i++){
-          var p = {name: arrNames[i], arrFoodItems: [], newFood : "", newCost: 0};
+          var p = {name: arrNames[i], arrFoodItems: [], newFood : "", newCost: null};
           if(arrFood.length - 1 >= i){        
             var _arrFoodItems = arrFood[i].split('°');
             var _arrCostItems = arrCost[i].split('°');

@@ -150,7 +150,7 @@ watch(canvas, async(newCanvas,oldCanvas) => {
 
 function addPerson() {          
   console.log("arrPersons");
-  arrPersons.value.push({name: "Name " + (arrPersons.value.length + 1), arrFoodItems: [], newFood : "", newCost: 0});
+  arrPersons.value.push({name: "Name " + (arrPersons.value.length + 1), arrFoodItems: [], newFood : "", newCost: null});
 }
 
 function removeFood(indexPerson, indexFood){
