@@ -10,6 +10,17 @@ import { collection, addDoc, getDocs, getDoc, doc} from "firebase/firestore";
 const store = useStore();// cannot destructure from object when declaring, have to reference via store.<variable/function>
 const router = useRouter() //composition api reference
 const hasData = ref(false);
+const valid = ref(false);
+const rulesCount = ref([   
+        value => {
+          if (value) return true
+          return 'Number is required.'
+        },
+        value => {
+          if (value > 1 && value <10) return true
+          return '2 - 9 only.'
+        }
+]);
 
 onBeforeMount(() => {  
   const params = (new URL(location)).searchParams;
@@ -92,6 +103,7 @@ export default {
 }
 </script>
 <template>      
+  <v-form v-model="valid">
     <v-container v-if="hasData" class="bg-surface-variant ma-1">
       <v-row>
           <v-col cols="12">
@@ -111,15 +123,17 @@ export default {
           </v-col>
         </v-row>
         <v-row>
-              <v-text-field
-                    density="compact"
-                    placeholder="Persons"
-                    prepend-inner-icon="mdi-account"
-                    variant="outlined"
-                    v-model="store.iCountPersons"/>                         
-              <v-btn  @click="store.decrementPersons()" icon="$minus" density="compact"/>
-              <v-btn @click="store.incrementPersons()" icon="$plus" density="compact"/>
-              <v-btn @click="goToDetails" density="compact"  >GO!</v-btn>
-        </v-row>
-  </v-container>
+        <v-text-field
+              density="compact"
+              placeholder="Persons"
+              prepend-inner-icon="mdi-account"
+              variant="outlined"
+              v-model="store.iCountPersons"
+              :rules="rulesCount"/>                         
+        <v-btn  @click="store.decrementPersons()" icon="$minus" density="compact"/>
+        <v-btn @click="store.incrementPersons()" icon="$plus" density="compact"/>
+        <v-btn @click="goToDetails" density="compact" :disabled="!valid">GO!</v-btn>
+      </v-row>
+    </v-container>
+  </v-form>
 </template>

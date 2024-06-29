@@ -195,7 +195,7 @@ onBeforeMount(() => {
             <v-row class="flex-row">
             <v-text-field @focus="$event.target.select()"
                       style="width:30%"
-                      :bg-color="person.name.length > 0 ? 'none' : colorRequired"
+                      :bg-color="person.name?.length > 0 ? 'none' : colorRequired"
                       density="compact"
                       placeholder="Name"
                       prepend-inner-icon="mdi-account"
@@ -209,7 +209,7 @@ onBeforeMount(() => {
               <v-container>
                 <v-row class="flex-row">
                   <v-text-field style="width:30%"
-                        :bg-color="foodItem.food.length > 0 ? 'none' : colorRequired"
+                        :bg-color="foodItem.food?.length > 0 ? 'none' : colorRequired"
                         density="compact"
                         placeholder="Food"
                         prepend-inner-icon="mdi-silverware-fork-knife"
@@ -225,7 +225,7 @@ onBeforeMount(() => {
                         variant="outlined"
                         v-model.number="foodItem.cost"/>                  
                   <v-btn @click="removeFood(indexPerson,indexFood)" icon="$minus" density="compact" variant="outlined"/>
-                  <v-btn @click="toggleShare(indexPerson,indexFood)" icon="mdi-account-multiple" density="compact" variant="outlined" :color="foodItem.arrShare.length == arrPersons.length ? 'none':'orange'"/>
+                  <v-btn @click="toggleShare(indexPerson,indexFood)" icon="mdi-account-multiple" density="compact" :disabled="foodItem.arrShare.length<1" variant="outlined" :color="foodItem.arrShare.length == arrPersons.length ? 'none':'orange'"/>
                 </v-row>
                 <v-row v-if="foodItem.showShare">
                   <v-divider/>
@@ -248,23 +248,26 @@ onBeforeMount(() => {
           <v-container>
             <v-row class="flex-row">
                 <v-text-field style="width:30%"
-                          :bg-color="person.newFood.length > 0 ? 'none' : colorRequired"
+                          :bg-color="person.newFood?.length > 0 || person.newCost > 0 ? colorRequired:'none'"
                           density="compact"
                           placeholder="Food"
                           prepend-inner-icon="mdi-silverware-fork-knife"
                           variant="outlined"
                           v-model="person.newFood"/>
                 <v-text-field style="width:30%"
-                      :bg-color="person.newCost > 0 ? 'none' : colorRequired"
+                      :bg-color="person.newFood?.length > 0 || person.newCost > 0 ? colorRequired:'none'"
                       density="compact"
                       placeholder="Cost"
                       prepend-inner-icon="mdi-currency-usd"
                       type="number"
                       variant="outlined"
                       v-model.number="person.newCost"/>
-
-                <v-btn @click="addFood(indexPerson)" icon="$plus" density="compact" variant="outlined" 
-                  :disabled = "person.name.trim().length < 1 || person.newCost == 0 || person.newFood.trim().length < 1"/>
+                <v-sheet>                  
+                  <v-btn @click="person.newFood=''; person.newCost=0" icon="mdi-close" density="compact" variant="outlined" 
+                    :disabled = "person.newFood?.length == 0 && person.newCost == 0"/>
+                  <v-btn @click="addFood(indexPerson)" icon="$plus" density="compact" variant="outlined" 
+                  :disabled = "person.newCost == 0 || person.newFood?.trim().length < 1"/>
+                </v-sheet>
               </v-row>
             </v-container>
             
