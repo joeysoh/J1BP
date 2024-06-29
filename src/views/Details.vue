@@ -3,6 +3,8 @@ import { useStore } from "./../store.js";
 import { useRouter, useRoute} from 'vue-router'
 import {onBeforeMount, onMounted, ref, computed, watch } from 'vue'
 import QRCode from 'qrcode'
+import crc from 'crc';
+
 
 //firebase
 import db from './../firebase';
@@ -60,7 +62,10 @@ const linkURL = computed(()=>{
     }
   }
   removeInvalidChar(arrNames);  
-  return `${store.fullpath}/?data=${(arrNames.join("~") + "`" + arrFood.join("~") + "`" + arrCost.join("~") + "`" + arrShare.join("~")).replaceAll(" ","é")}`;
+  var data = arrNames.join("~") + "`" + arrFood.join("~") + "`" + arrCost.join("~") + "`" + arrShare.join("~");
+  data = data + "`" + crc.crc16(data).toString();  
+  data = data.replaceAll(" ","é");
+  return `${store.fullpath}/?data=${data}`;
 });
 
 async function linkShare(){  
