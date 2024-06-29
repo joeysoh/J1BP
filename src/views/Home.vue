@@ -39,7 +39,7 @@ onBeforeMount(() => {
     var arrCost = [];
     var arrShare = [];
     var strCRC = '';
-    var arr = data.replaceAll('é'," ").split('`'); 
+    var arr = decodeURIComponent(data).replaceAll('é'," ").split('`'); 
     console.log(arr);
     if(arr.length == 5){
       arrNames = arr[0].split("~");

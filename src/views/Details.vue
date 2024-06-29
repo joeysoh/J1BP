@@ -65,7 +65,7 @@ const linkURL = computed(()=>{
   var data = arrNames.join("~") + "`" + arrFood.join("~") + "`" + arrCost.join("~") + "`" + arrShare.join("~");
   data = data + "`" + crc.crc16(data).toString();  
   data = data.replaceAll(" ","é");
-  return `${store.fullpath}/?data=${data}`;
+  return `${store.fullpath}/?data=${encodeURIComponent(data)}`;
 });
 
 async function linkShare(){  
