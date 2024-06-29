@@ -102,9 +102,9 @@ const arrCalculate = computed(() =>{
   for(var i = 0; i < arrPersons.value.length; i++){ //for each person    
     for(var j = 0; j < arrPersons.value[i].arrFoodItems.length; j++){ //for each food item paid by person      
       var per = arrPersons.value[i].arrFoodItems[j].cost / arrPersons.value[i].arrFoodItems[j].arrShare.length; //get per person cost by dividing cost of food over # of people
-      arrPersons.value[i].arrFoodItems[j].per = per;
+      arrPersons.value[i].arrFoodItems[j].per = per;      
       for(var k = 0; k < arrPersons.value[i].arrFoodItems[j].arrShare.length; k++){ //for each person who shared the food
-        if(k != i){//excluding person who paid
+        if(arrPersons.value[i].arrFoodItems[j].arrShare[k] != i){//excluding person who paid
           arrPersonPayPerson[arrPersons.value[i].arrFoodItems[j].arrShare[k]][i] += per;//person who shares food, has amount in array position for person who paid, added with cost of food per person
         }
       }
@@ -145,7 +145,7 @@ watch(canvas, async(newCanvas,oldCanvas) => {
 
 function addPerson() {          
   console.log("arrPersons");
-  arrPersons.value.push({name: "Name " + (arrPersons.value.length + 1), arrFoodItems: [], newFood : "a", newCost: 10});
+  arrPersons.value.push({name: "Name " + (arrPersons.value.length + 1), arrFoodItems: [], newFood : "", newCost: 0});
 }
 
 function removeFood(indexPerson, indexFood){
@@ -193,7 +193,7 @@ onBeforeMount(() => {
         <v-sheet class="ma-1 pa-1" style="min-width: 300px">
           <v-container>
             <v-row class="flex-row">
-            <v-text-field
+            <v-text-field @focus="$event.target.select()"
                       style="width:30%"
                       :bg-color="person.name.length > 0 ? 'none' : colorRequired"
                       density="compact"
@@ -231,38 +231,43 @@ onBeforeMount(() => {
                   <v-divider/>
                     <template v-for="(person, indexSharePerson) in arrPersons">
                       <v-sheet>
-                        <v-checkbox :label="person.name" :value = "indexSharePerson" v-model="foodItem.arrShare" :disabled = "indexPerson == indexSharePerson" density="compact"></v-checkbox>                        
+                        <v-checkbox :label="person.name" :value = "indexSharePerson" v-model="foodItem.arrShare" density="compact"></v-checkbox>                        
                       </v-sheet>
                     </template>                    
                     <v-text-field style="width:30%"
+                        :bg-color="foodItem.arrShare.length > 0 ? 'none' : colorRequired"
                         density="compact"
                         prepend-inner-icon="mdi-account"
                         disabled = true                        
-                        v-bind:value="'$' + Math.round(foodItem.per*100)/100"/>
+                        v-bind:value="foodItem.arrShare.length > 0 ? ('$' + foodItem.per ? Math.round(foodItem.per*100)/100 : 0) : 'Invalid'"/>
                     <v-divider/><!-- disabled textfield, due to alignment issues with interpolated text -->
                 </v-row>                                  
               </v-container>            
           </template>
-        
-          <v-text-field
-                    :bg-color="person.newFood.length > 0 ? 'none' : colorRequired"
-                    density="compact"
-                    placeholder="Food"
-                    prepend-inner-icon="mdi-silverware-fork-knife"
-                    variant="outlined"
-                    v-model="person.newFood"/> 
-                            
-              <v-text-field 
-                    :bg-color="person.newCost > 0 ? 'none' : colorRequired"
-                    density="compact"
-                    placeholder="Cost"
-                    prepend-inner-icon="mdi-currency-usd"
-                    type="number"
-                    variant="outlined"
-                    v-model.number="person.newCost">
-                  </v-text-field>
-          <v-btn @click="addFood(indexPerson)" icon="$plus" density="compact" variant="outlined" 
-            :disabled = "person.name.trim().length < 1 || person.newCost == 0 || person.newFood.trim().length < 1"/>
+          
+          <v-container>
+            <v-row class="flex-row">
+                <v-text-field style="width:30%"
+                          :bg-color="person.newFood.length > 0 ? 'none' : colorRequired"
+                          density="compact"
+                          placeholder="Food"
+                          prepend-inner-icon="mdi-silverware-fork-knife"
+                          variant="outlined"
+                          v-model="person.newFood"/>
+                <v-text-field style="width:30%"
+                      :bg-color="person.newCost > 0 ? 'none' : colorRequired"
+                      density="compact"
+                      placeholder="Cost"
+                      prepend-inner-icon="mdi-currency-usd"
+                      type="number"
+                      variant="outlined"
+                      v-model.number="person.newCost"/>
+
+                <v-btn @click="addFood(indexPerson)" icon="$plus" density="compact" variant="outlined" 
+                  :disabled = "person.name.trim().length < 1 || person.newCost == 0 || person.newFood.trim().length < 1"/>
+              </v-row>
+            </v-container>
+            
         </v-sheet>
       </template>
     </v-row>
