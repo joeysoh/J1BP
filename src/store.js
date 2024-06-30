@@ -3,6 +3,8 @@ import { ref } from 'vue'
 
 export const useStore = defineStore("store", ()=>{    
     const iCountPersons = ref(3);
+    const fGST = ref(9);
+    const fSVC = ref(10);
     const data = ref();
     const fullpath = ref();
 
@@ -22,6 +24,6 @@ export const useStore = defineStore("store", ()=>{
       this.iCountPersons -= value;
       console.log(this.iCountPersons);
     }
-    return {iCountPersons,decrementPersons,incrementPersons, setData, setFullPath}
+    return {iCountPersons, fGST, fSVC, data, fullpath, decrementPersons,incrementPersons, setData, setFullPath}
   }  
 );

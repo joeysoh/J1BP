@@ -38,20 +38,26 @@ onBeforeMount(() => {
     var arrFood = [];
     var arrCost = [];
     var arrShare = [];
+    var arrSVC = [];
+    var arrGST = [];
     var strCRC = '';
     var arr = decodeURIComponent(data).replaceAll('é'," ").split('`'); 
     console.log(arr);
-    if(arr.length == 5){
-      arrNames = arr[0].split("~");
-      arrFood = arr[1].split("~");
-      arrCost = arr[2].split("~");
-      arrShare = arr[3].split("~");
-      strCRC =  arr[4];
+    if(arr.length == 7){
+      arrNames = arr[0].split("~");      
+      arrSVC = arr[1].split("~");
+      arrGST = arr[2].split("~");
+      arrFood = arr[3].split("~");
+      arrCost = arr[4].split("~");
+      arrShare = arr[5].split("~");
+      strCRC =  arr[6];
 
-      if(crc.crc16(arrNames.join("~") + "`" + arrFood.join("~") + "`" + arrCost.join("~") + "`" + arrShare.join("~")).toString() == strCRC){
+      if(crc.crc16(arrNames.join("~") + "`" + arrSVC.join("~") + "`" + arrGST.join("~") + "`" + arrFood.join("~") + "`" + arrCost.join("~") + "`" + arrShare.join("~")).toString() == strCRC){
         var arrPersons = [];
+        arrSVC = arrSVC.map(x => x === '1');
+        arrGST = arrGST.map(x => x === '1');      
         for(var i = 0; i< arrNames.length; i++){
-          var p = {name: arrNames[i], arrFoodItems: [], newFood : "", newCost: null};
+          var p = {name: arrNames[i], hasSVC: arrSVC[i], hasGST: arrGST[i], arrFoodItems: [], newFood : "", newCost: null};
           if(arrFood.length - 1 >= i){        
             var _arrFoodItems = arrFood[i].split('°');
             var _arrCostItems = arrCost[i].split('°');
@@ -62,7 +68,8 @@ onBeforeMount(() => {
                 ,cost: parseFloat(_arrCostItems[j])
                 , showShare: false
                 , arrShare: _arrShareItems[j].split(",").map(Number)
-                , per: _arrCostItems[j] ? Math.round((parseFloat(_arrCostItems[j]) / _arrShareItems[j].length) * 100)/100 : 0
+                , per: 0//_arrCostItems[j] ? Math.round((parseFloat(_arrCostItems[j]) / _arrShareItems[j].length) * 100)/100 : 0
+                , totalCost:0
               });
             }
           }

@@ -38,6 +38,8 @@ const linkURL = computed(()=>{
   var arrFood = [];
   var arrCost = [];
   var arrShare = [];
+  var arrSVC = [];
+  var arrGST = [];
   var _arrPersons = arrPersons.value.toSorted(
     function(a,b){
       return (b.arrFoodItems.length - a.arrFoodItems.length);
@@ -45,6 +47,9 @@ const linkURL = computed(()=>{
   );
   for(var i = 0; i < _arrPersons.length; i++){
     arrNames.push(_arrPersons[i].name);
+    arrSVC.push(_arrPersons[i].hasSVC?1:0);
+    arrGST.push(_arrPersons[i].hasGST?1:0);
+
     if(_arrPersons[i].arrFoodItems.length > 0){
       var _arrFood = [];
       var _arrCost = [];
@@ -52,7 +57,8 @@ const linkURL = computed(()=>{
       for(var j = 0; j < _arrPersons[i].arrFoodItems.length; j++){      
           _arrFood.push(_arrPersons[i].arrFoodItems[j].food);
           _arrCost.push(Math.round(_arrPersons[i].arrFoodItems[j].cost * 100)/100);
-          _arrShare.push(_arrPersons[i].arrFoodItems[j].arrShare);      
+          _arrShare.push(_arrPersons[i].arrFoodItems[j].arrShare);  
+          
       }
       removeInvalidChar(_arrFood);
       removeInvalidChar(_arrCost);
@@ -62,7 +68,7 @@ const linkURL = computed(()=>{
     }
   }
   removeInvalidChar(arrNames);  
-  var data = arrNames.join("~") + "`" + arrFood.join("~") + "`" + arrCost.join("~") + "`" + arrShare.join("~");
+  var data = arrNames.join("~") + "`" + arrSVC.join("~") + "`" + arrGST.join("~") + "`" + arrFood.join("~") + "`" + arrCost.join("~") + "`" + arrShare.join("~");
   data = data + "`" + crc.crc16(data).toString();  
   data = data.replaceAll(" ","é");
   return `${store.fullpath}/?data=${encodeURIComponent(data)}`;
@@ -82,7 +88,6 @@ async function linkShare(){
   }  
 }
 
-
 function sumArrayAttribute(items, prop){
     return items.reduce( function(a, b){
         return a + b[prop];
@@ -92,22 +97,30 @@ function sumArrayAttribute(items, prop){
 const arrTotalCost = computed(()=>{
   var arr = [];
   for(var i = 0; i < arrPersons.value.length; i++){
-    arr.push(sumArrayAttribute(arrPersons.value[i].arrFoodItems, "cost"));
+    arr.push(sumArrayAttribute(arrPersons.value[i].arrFoodItems, "totalCost"));
   }
   return arr;
 })
 
 const arrCalculate = computed(() =>{
+  console.log("arrcalculate");
   var arrPersonPayPerson = [];
+
   for(var i = 0; i < arrPersons.value.length; i++){
     var arrPay = Array(arrPersons.value.length).fill(0);
     arrPersonPayPerson.push(arrPay);    
   }
 
   for(var i = 0; i < arrPersons.value.length; i++){ //for each person    
-    for(var j = 0; j < arrPersons.value[i].arrFoodItems.length; j++){ //for each food item paid by person      
+    for(var j = 0; j < arrPersons.value[i].arrFoodItems.length; j++){ //for each food item paid by person         
       var per = arrPersons.value[i].arrFoodItems[j].cost / arrPersons.value[i].arrFoodItems[j].arrShare.length; //get per person cost by dividing cost of food over # of people
+      var svc = (store.fSVC / 100 * per) * (arrPersons.value[i].hasSVC?1:0);//svc amount from per * svc charge, if svc not checked, 0
+      var gst = (store.fGST / 100 * (per + svc)) * (arrPersons.value[i].hasGST?1:0);
+      console.log(`per:${per} svc: ${svc} gst: ${gst} total per: ${per + svc + gst}`);
+      per = per + svc + gst;
+
       arrPersons.value[i].arrFoodItems[j].per = per;      
+      arrPersons.value[i].arrFoodItems[j].totalCost = per * arrPersons.value[i].arrFoodItems[j].arrShare.length;
       for(var k = 0; k < arrPersons.value[i].arrFoodItems[j].arrShare.length; k++){ //for each person who shared the food
         if(arrPersons.value[i].arrFoodItems[j].arrShare[k] != i){//excluding person who paid
           arrPersonPayPerson[arrPersons.value[i].arrFoodItems[j].arrShare[k]][i] += per;//person who shares food, has amount in array position for person who paid, added with cost of food per person
@@ -148,9 +161,8 @@ watch(canvas, async(newCanvas,oldCanvas) => {
   }
 });
 
-function addPerson() {          
-  console.log("arrPersons");
-  arrPersons.value.push({name: "Name " + (arrPersons.value.length + 1), arrFoodItems: [], newFood : null, newCost: null});
+function addPerson() {
+  arrPersons.value.push({name: "Name " + (arrPersons.value.length + 1), hasGST: false, hasSVC:false, arrFoodItems: [], newFood : null, newCost: null});
 }
 
 function removeFood(indexPerson, indexFood){
@@ -166,7 +178,9 @@ function addFood(index) {
     food: arrPersons.value[index].newFood
     , cost: parseFloat(arrPersons.value[index].newCost)
     , showShare: false, arrShare:[...Array(arrPersons.value.length).keys()]
-    , per: 0});  
+    , per:0
+    , totalCost:parseFloat(arrPersons.value[index].newCost)
+  });//per, totalCost, svc and gst to be computed by arrCalculate 
   arrPersons.value[index].newFood = null;
   arrPersons.value[index].newCost = null;
 }
@@ -185,11 +199,31 @@ onBeforeMount(() => {
 
 <template>
   <v-container>
-    <v-row>      
-      <v-sheet class="px-6 mr-6">{{ store.iCountPersons }} Person(s)</v-sheet>
-      <a :href="store.fullpath" v-if="store.data">Reset</a>
-      <v-btn v-else @click="goToHome" density="compact">Back</v-btn>
-    </v-row>
+    <v-row class="flex-row">            
+      <v-text-field density="compact" :value="store.iCountPersons + ' People'" max-width="200" :disabled="true"/>      
+      <a :href="store.fullpath" v-if="store.data"><v-icon icon="mdi-arrow-left" density="compact" style="width:10%"></v-icon>Reset</a>
+      <v-btn v-else @click="goToHome" density="compact"><v-icon icon="mdi-arrow-left" density="compact" style="width:10%"></v-icon>Back</v-btn>                      
+    </v-row>                        
+      <v-row class="flex-row">
+        <v-text-field density="compact" value="Service Charge" max-width="200" :disabled="true"/>
+        <v-text-field max-width="100"
+            :bg-color="store.fSVC > 0 ? 'none' : colorRequired"
+            density="compact"
+            placeholder="SVC"
+            type="number"
+            append-inner-icon="mdi-percent"
+            variant="outlined"
+            v-model.number="store.fSVC"/> 
+        <v-text-field density="compact" value="GST" max-width="100" :disabled="true"/>
+        <v-text-field max-width="100"
+            :bg-color="store.fGST > 0 ? 'none' : colorRequired"
+            density="compact"
+            placeholder="GST"
+            type="number"
+            append-inner-icon="mdi-percent"
+            variant="outlined"
+            v-model.number="store.fGST"/>       
+    </v-row>    
   </v-container>
 
   <v-container class="bg-surface-variant ma-0"><v-form>
@@ -198,16 +232,21 @@ onBeforeMount(() => {
         <v-sheet class="ma-1 pa-1" style="min-width: 300px">
           <v-container>
             <v-row class="flex-row">
-            <v-text-field @focus="$event.target.select()"
-                      style="width:30%"
-                      :bg-color="person.name?.length > 0 ? 'none' : colorRequired"
-                      density="compact"
-                      placeholder="Name"
-                      prepend-inner-icon="mdi-account"
-                      variant="outlined"
-                      v-model="person.name"/> 
-            <v-icon icon="mdi-sigma" density="compact" style="width:10%"></v-icon>
-            {{ sumArrayAttribute(person.arrFoodItems, "cost") }}
+              <v-text-field @focus="$event.target.select()"
+                        style="width:30%"
+                        :bg-color="person.name?.length > 0 ? 'none' : colorRequired"
+                        density="compact"
+                        placeholder="Name"
+                        prepend-inner-icon="mdi-account"
+                        variant="outlined"
+                        v-model="person.name"/> 
+
+              <v-checkbox label="Service" density="compact" v-model="person.hasSVC"></v-checkbox>
+              <v-checkbox label="GST" density="compact" v-model="person.hasGST"></v-checkbox>                                        
+              <v-icon icon="mdi-sigma" density="compact" style="width:10%"></v-icon>{{ Math.round(sumArrayAttribute(person.arrFoodItems, "totalCost")*100)/100 }}
+            </v-row>
+            <v-row class="flex-row">
+              
             </v-row>
           </v-container>          
   
@@ -263,7 +302,7 @@ onBeforeMount(() => {
                 <v-text-field style="width:30%"
                           :bg-color="person.newFood?.length > 0 || person.newCost > 0 ? colorRequired:'none'"
                           density="compact"
-                          placeholder="Food"
+                          placeholder="Food Name"
                           prepend-inner-icon="mdi-silverware-fork-knife"
                           variant="outlined"
                           v-model="person.newFood"/>
