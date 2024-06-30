@@ -211,11 +211,10 @@ onBeforeMount(() => {
             </v-row>
           </v-container>          
   
-          <v-expand-transition>
+        
           <template v-for="(foodItem, indexFood) in person.arrFoodItems" v-bind:key="indexFood">            
-            
               <v-container>                
-                  <v-row class="flex-row">                  
+                  <v-row class="flex-row">                   
                       <v-btn @click="toggleShare(indexPerson,indexFood)" icon="mdi-account-multiple" density="compact" :disabled="foodItem.arrShare.length<1" variant="outlined" :color="foodItem.arrShare.length == arrPersons.length ? 'none':'orange'"/>
                       <v-text-field style="width:30%"
                             :bg-color="foodItem.food?.length > 0 ? 'none' : colorRequired"
@@ -232,10 +231,9 @@ onBeforeMount(() => {
                             type="number"
                             prepend-inner-icon="mdi-currency-usd"
                             variant="outlined"
-                            v-model.number="foodItem.cost"/>                  
-                            
-                    <v-btn @click="removeFood(indexPerson,indexFood)" icon="$minus" density="compact" variant="outlined"/>                                    
-                  </v-row>                
+                            v-model.number="foodItem.cost"/>                                           
+                    <v-btn @click="removeFood(indexPerson,indexFood)" icon="$minus" density="compact" variant="outlined"/>                                                                     
+                  </v-row>
               
                 <v-expand-transition>
                 <v-row v-if="foodItem.showShare">
@@ -255,8 +253,9 @@ onBeforeMount(() => {
                 </v-row>             
               </v-expand-transition>                     
               </v-container>            
+            
           </template>
-        </v-expand-transition>
+        
           <v-container>
             <v-row class="flex-row">
                 <v-btn @click="addFood(indexPerson)" icon="$plus" density="compact" variant="outlined" 
