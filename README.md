@@ -2,7 +2,9 @@
 
 For Splitting Bills.
 
-Using Vue, Vuetify and Pinia.
+Using Vue, Vuetify, Pinia and Firebase.
+
+Setup firebase firestore in firebase.js first before running.
 
 Similar sites:
 
