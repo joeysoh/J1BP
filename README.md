@@ -4,8 +4,6 @@ For Splitting Bills.
 
 Using Vue, Vuetify, Pinia and Firebase.
 
-Setup firebase firestore in firebase.js first before running.
-
 Similar sites:
 
 [Billzer](https://billzer.com/)
@@ -21,3 +19,27 @@ Apps:
 [youchamp](https://youchampapp.com/)
 [equiTable](https://equitableapp.com/)
 [Evenfy](https://www.evenfy.com/en-us/)
+
+
+## Setup firebase firestore in firebase.js in the same folder as main.js first before running.
+
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+import { getFirestore } from "firebase/firestore";
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "api key here",
+  authDomain: "authDomain.firebaseapp.com",
+  projectId: "project id generated from firebase site",
+  storageBucket: "project storage bucket.appspot.com",
+  messagingSenderId: "messaging sender id",
+  appId: "app id",
+  measurementId: "measurement id"
+};
+
+const app = initializeApp(firebaseConfig);
+// Initialize Cloud Firestore and get a reference to the service
+const db = getFirestore(app);
+export default db;
