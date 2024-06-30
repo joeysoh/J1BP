@@ -204,25 +204,27 @@ onBeforeMount(() => {
       <a :href="store.fullpath" v-if="store.data"><v-icon icon="mdi-arrow-left" density="compact" style="width:10%"></v-icon>Reset</a>
       <v-btn v-else @click="goToHome" density="compact"><v-icon icon="mdi-arrow-left" density="compact" style="width:10%"></v-icon>Back</v-btn>                      
     </v-row>                        
-      <v-row class="flex-row">
-        <v-text-field density="compact" value="Service Charge" max-width="200" :disabled="true"/>
-        <v-text-field max-width="100"
-            :bg-color="store.fSVC > 0 ? 'none' : colorRequired"
-            density="compact"
-            placeholder="SVC"
-            type="number"
-            append-inner-icon="mdi-percent"
-            variant="outlined"
-            v-model.number="store.fSVC"/> 
-        <v-text-field density="compact" value="GST" max-width="100" :disabled="true"/>
-        <v-text-field max-width="100"
-            :bg-color="store.fGST > 0 ? 'none' : colorRequired"
-            density="compact"
-            placeholder="GST"
-            type="number"
-            append-inner-icon="mdi-percent"
-            variant="outlined"
-            v-model.number="store.fGST"/>       
+    <v-row class="flex-row">
+      <v-text-field density="compact" value="Service Charge" max-width="200" :disabled="true"/>
+      <v-text-field max-width="100"
+          :bg-color="store.fSVC > 0 ? 'none' : colorRequired"
+          density="compact"
+          placeholder="SVC"
+          type="number"
+          append-inner-icon="mdi-percent"
+          variant="outlined"
+          v-model.number="store.fSVC"/> 
+    </v-row>                        
+    <v-row class="flex-row">          
+      <v-text-field density="compact" value="GST" max-width="100" :disabled="true"/>          
+      <v-text-field max-width="100"
+          :bg-color="store.fGST > 0 ? 'none' : colorRequired"
+          density="compact"
+          placeholder="GST"
+          type="number"
+          append-inner-icon="mdi-percent"
+          variant="outlined"
+          v-model.number="store.fGST"/>       
     </v-row>    
   </v-container>
 
@@ -240,13 +242,12 @@ onBeforeMount(() => {
                         prepend-inner-icon="mdi-account"
                         variant="outlined"
                         v-model="person.name"/> 
-
-              <v-checkbox label="Service" density="compact" v-model="person.hasSVC"></v-checkbox>
-              <v-checkbox label="GST" density="compact" v-model="person.hasGST"></v-checkbox>                                        
-              <v-icon icon="mdi-sigma" density="compact" style="width:10%"></v-icon>{{ Math.round(sumArrayAttribute(person.arrFoodItems, "totalCost")*100)/100 }}
             </v-row>
             <v-row class="flex-row">
-              
+              <v-checkbox label="Service Charge" density="compact" v-model="person.hasSVC"></v-checkbox>
+              <v-checkbox label="GST" density="compact" v-model="person.hasGST"></v-checkbox>  
+              <v-text-field density="compact" prepend-inner-icon="mdi-sigma" :value="Math.round(sumArrayAttribute(person.arrFoodItems, 'totalCost')*100)/100" max-width="200" :disabled="true"/>              
+              <v-divider/>
             </v-row>
           </v-container>          
   
