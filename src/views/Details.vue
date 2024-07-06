@@ -146,17 +146,39 @@ const arrCalculate = computed(() =>{
   return arrPersonPayPerson;
 });
 
+onBeforeMount(() => {
+})
+
 onMounted(() => {
+  if(data){
+    linkURL.effect.run();
+    arrTotalCost.effect.run();
+    arrCalculate.effect.run();
+  }
 })
 
 function goToHome(){  
   router.push('/') 
 }
+
+watch(linkURL.value, async(newlinkURL,oldlinkURL) => {
+  if(newCanvas){
+    QRCode.toCanvas(canvas, linkURL.value, function (error) {
+    if (error) 
+      console.error(error)
+      console.log('qr code error');
+      console.log(linkURL.value);
+    })
+  }
+});
+
 watch(canvas, async(newCanvas,oldCanvas) => {
   if(newCanvas){
     QRCode.toCanvas(newCanvas, linkURL.value, function (error) {
-    if (error) console.error(error)
+    if (error) 
+      console.error(error)
       console.log('qr code error');
+      console.log(linkURL.value);
     })
   }
 });
@@ -299,12 +321,11 @@ onBeforeMount(() => {
           <v-container>
             <v-row class="flex-row">
                 <v-btn @click="addFood(indexPerson)" icon="$plus" density="compact" variant="outlined" 
-                    :disabled = "((person.newFood ?? '').trim() == '') || (person.newCost ?? 0) == 0"/>
+                    :disabled = "((person.newFood ?? '').trim() == '') || (person.newCost ?? 0) == 0"/>                
                 <v-text-field style="width:30%"
                           :bg-color="person.newFood?.length > 0 || person.newCost > 0 ? colorRequired:'none'"
                           density="compact"
-                          placeholder="Food Name"
-                          prepend-inner-icon="mdi-silverware-fork-knife"
+                          placeholder="Item Name"                          
                           variant="outlined"
                           v-model="person.newFood"/>
                 <v-text-field style="width:30%"
