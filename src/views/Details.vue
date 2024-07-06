@@ -2,6 +2,7 @@
 import { useStore } from "./../store.js";
 import { useRouter, useRoute} from 'vue-router'
 import {onBeforeMount, onMounted, ref, computed, watch } from 'vue'
+import { useDisplay } from 'vuetify'
 import QRCode from 'qrcode'
 import crc from 'crc';
 
@@ -10,12 +11,14 @@ import crc from 'crc';
 import db from './../firebase';
 import { collection, addDoc, getDocs, getDoc, doc} from "firebase/firestore"; 
 
+const { mobile } = useDisplay()
 const router = useRouter() //composition api reference
 const showQR = ref(false);
 const store = useStore();
 const colorRequired = "purple-lighten-4";
 const data = store.data;
 const canvas = ref(null);
+
 var arrPersons = ref([]);
 
 function linkCopy(){  
@@ -172,7 +175,7 @@ onMounted(() => {
     arrTotalCost.effect.run();
     arrCalculate.effect.run();
     linkURL.effect.run();        
-  }
+  }  
 })
 
 function goToHome(){  
@@ -233,8 +236,8 @@ onBeforeMount(() => {
 </script>
 
 <template>
-  <v-container>
-    <v-row class="flex-row" style="max-height: 40px;">
+  <v-container class="flex-row ma-0 pa-1 me-auto">
+    <v-row class="flex-row ma-0 pa-0 me-auto" style="max-height: 40px;">
       <span class="ma-0 pa-0 me-auto">
       {{ store.iCountPersons}}  People      
       </span>
@@ -275,14 +278,14 @@ onBeforeMount(() => {
           :min="0"          
           append-inner-icon="mdi-percent"
           variant="outlined"
-          v-model.number="store.fGST"/>      
+          v-model.number="store.fGST"/>
     </v-row>    
   </v-container>
 
   <v-container class="bg-surface-variant ma-0"><v-form>
     <v-row>      
       <template v-for="(person, indexPerson) in arrPersons">        
-        <v-sheet class="ma-1 pa-1" style="min-width: 300px">
+        <v-sheet :class="mobile? 'my-1 py-1' : 'ma-1 pa-1'" :width="mobile? '100%': undefined">
           <v-container>
             <v-row class="flex-row" style="max-height: 40px;">
               <v-text-field @focus="$event.target.select()"

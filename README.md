@@ -2,7 +2,7 @@
 
 For Splitting Bills.
 
-Using Vue, Vuetify, Pinia and Firebase.
+Using Vue, Vite, Vuetify, Pinia and Firebase.
 
 Similar sites:
 
