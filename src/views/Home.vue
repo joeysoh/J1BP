@@ -69,12 +69,12 @@ onBeforeMount(() => {
             var _arrFoodItems = arrFood[i].split('°');
             var _arrCostItems = arrCost[i].split('°');
             var _arrShareItems = arrShare[i].split('°');
-            for(var j = 0; j < _arrFoodItems.length; j++){          
+            for(var j = 0; j < _arrFoodItems.length; j++){
               p.arrFoodItems.push({
                 food: _arrFoodItems[j]
                 ,cost: parseFloat(_arrCostItems[j])
-                , showShare: arrShare[i].trim().length < 1
-                , arrShare: arrShare[i].trim().length > 0 ? _arrShareItems[j].split(",").map(Number) : []
+                , showShare: _arrShareItems[j].length == 0
+                , arrShare: _arrShareItems[j].length == 0 ? [] : _arrShareItems[j].split(",").map(Number)
                 , per: 0//_arrCostItems[j] ? Math.round((parseFloat(_arrCostItems[j]) / _arrShareItems[j].length) * 100)/100 : 0
                 , totalCost:0
               });
