@@ -113,18 +113,26 @@ const arrCalculate = computed(() =>{
 
   for(var i = 0; i < arrPersons.value.length; i++){ //for each person    
     for(var j = 0; j < arrPersons.value[i].arrFoodItems.length; j++){ //for each food item paid by person         
-      var per = arrPersons.value[i].arrFoodItems[j].cost / arrPersons.value[i].arrFoodItems[j].arrShare.length; //get per person cost by dividing cost of food over # of people
-      var svc = (store.fSVC / 100 * per) * (arrPersons.value[i].hasSVC?1:0);//svc amount from per * svc charge, if svc not checked, 0
-      var gst = (store.fGST / 100 * (per + svc)) * (arrPersons.value[i].hasGST?1:0);
-      console.log(`per:${per} svc: ${svc} gst: ${gst} total per: ${per + svc + gst}`);
-      per = per + svc + gst;
-
-      arrPersons.value[i].arrFoodItems[j].per = per;      
-      arrPersons.value[i].arrFoodItems[j].totalCost = per * arrPersons.value[i].arrFoodItems[j].arrShare.length;
-      for(var k = 0; k < arrPersons.value[i].arrFoodItems[j].arrShare.length; k++){ //for each person who shared the food
-        if(arrPersons.value[i].arrFoodItems[j].arrShare[k] != i){//excluding person who paid
-          arrPersonPayPerson[arrPersons.value[i].arrFoodItems[j].arrShare[k]][i] += per;//person who shares food, has amount in array position for person who paid, added with cost of food per person
-        }
+      var per = 0;
+      var svc = 0.00;
+      var gst = 0.00;
+      var arrShare = arrPersons.value[i].arrFoodItems[j].arrShare;
+      console.log(`per: ${per} share count: ${arrShare.length}`);
+      if(arrShare.length> 0){        
+        per = arrPersons.value[i].arrFoodItems[j].cost / arrShare.length; //get per person cost by dividing cost of food over # of people
+        svc = (store.fSVC / 100 * per) * (arrPersons.value[i].hasSVC?1:0);//svc amount from per * svc charge, if svc not checked, 0
+        gst = (store.fGST / 100 * (per + svc)) * (arrPersons.value[i].hasGST?1:0);        
+        console.log(`per:${per} svc: ${svc} gst: ${gst} total per: ${per + svc + gst}`);
+        per = per + svc + gst;
+        arrPersons.value[i].arrFoodItems[j].per = per;      
+        arrPersons.value[i].arrFoodItems[j].totalCost = per * arrShare.length;
+        for(var k = 0; k < arrShare.length; k++){ //for each person who shared the food
+          if(arrShare[k] != i){//excluding person who paid
+            arrPersonPayPerson[arrShare[k]][i] += per;//person who shares food, has amount in array position for person who paid, added with cost of food per person
+          }
+        }        
+      } else {
+        per = arrPersons.value[i].arrFoodItems[j].cost;        
       }
     }
   }
@@ -338,21 +346,25 @@ onBeforeMount(() => {
         </v-sheet>
       </template>
     </v-row>
-    <v-row v-if = "arrTotalCost.reduce((accumulator, currentValue) => accumulator + currentValue,0)>0">
-      <v-sheet color="teal-accent-1">
-            Amount Owed:
-            <template v-for="(arrPaymentAmount, indexPerson) in arrCalculate">
-              <v-divider/>
-              <v-sheet v-if = "arrCalculate[indexPerson].reduce((accumulator, currentValue) => accumulator + currentValue,0)> 0">
-                {{ arrPersons[indexPerson].name }}
-                <template v-for="(paymentAmount,indexPaymentAmount) in arrPaymentAmount">
-                  <div v-if="indexPaymentAmount != indexPerson && paymentAmount > 0">{{ paymentAmount.toFixed(2) }} 
-                    <v-icon icon="mdi-arrow-right-thin"></v-icon> 
-                    {{ arrPersons[indexPaymentAmount].name }}</div>
-                </template>
-              </v-sheet>            
-            </template>           
-      </v-sheet>            
+    <v-row v-if = "arrTotalCost.reduce((accumulator, currentValue) => accumulator + currentValue,0)>0">      
+        <v-sheet color="teal-accent-1">
+              Amount Owed:
+              <template v-for="(arrPaymentAmount, indexPerson) in arrCalculate">
+                <v-divider/>
+                <v-expand-transition>
+                  <v-sheet v-if = "arrCalculate[indexPerson].reduce((accumulator, currentValue) => accumulator + currentValue,0)> 0">
+                    {{ arrPersons[indexPerson].name }}
+                    <template v-for="(paymentAmount,indexPaymentAmount) in arrPaymentAmount">
+                      
+                        <div v-if="indexPaymentAmount != indexPerson && paymentAmount > 0">{{ paymentAmount.toFixed(2) }} 
+                          <v-icon icon="mdi-arrow-right-thin"></v-icon> 
+                          {{ arrPersons[indexPaymentAmount].name }}</div>                    
+                    </template>                
+                  </v-sheet>   
+                </v-expand-transition>          
+              </template>           
+        </v-sheet>           
+      
       <v-btn density="compact" icon="mdi-content-copy" @Click = "linkCopy"></v-btn>
       <v-btn density="compact" icon="mdi-share-variant-outline" @Click = "linkShare"></v-btn>     
       <v-btn density="compact" icon="mdi-qrcode" @click = "showQR = !showQR; linkURL;"></v-btn>
