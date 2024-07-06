@@ -224,16 +224,23 @@ onBeforeMount(() => {
 
 <template>
   <v-container>
-    <v-row class="flex-row" style="max-height: 40px;">            
-      {{ store.iCountPersons}}  People
-      <a :href="store.fullpath" v-if="store.data"><v-icon icon="mdi-arrow-left" density="compact" style="width:10%"></v-icon>Reset</a>
-      <v-btn v-else @click="goToHome" density="compact"><v-icon icon="mdi-arrow-left" density="compact" style="width:10%"></v-icon>Back</v-btn>                      
+    <v-row class="flex-row" style="max-height: 40px;">
+      <span class="ma-0 pa-0 me-auto">
+      {{ store.iCountPersons}}  People      
+      </span>
+      <span>
+        <v-btn v-if="store.data" density="compact" variant="outlined">
+          <v-icon icon="mdi-arrow-left" density="compact" style="width:10%"></v-icon>
+          <a :href="store.fullpath" style="color:white"><v-icon density="compact" style="width:10%"></v-icon>Reset</a>
+        </v-btn>
+        <v-btn v-else @click="goToHome" density="compact" variant="outlined"><v-icon icon="mdi-arrow-left" density="compact" style="width:10%"></v-icon>Back</v-btn>                      
+      </span>
     </v-row>                        
     
-    <v-row class="flex-row">      
+    <v-row v-show="store.showSVCGST" class="flex-row">      
       <span class="mt-2" density="compact">Svc</span>
       <v-text-field style="max-width:100px;max-height: 40px;"
-          :oninput = "store.fSVC < 0 ? store.fSVC = 0 : (store.fSVC > 99 ? store.fSVC = 99 : store.fSVC = Math.Round(store.fSVC))"
+          :oninput = "store.fSVC < 0 ? store.fSVC = 0 : (store.fSVC > 99 ? store.fSVC = 99 : store.fSVC = Math.round(store.fSVC))"
           class="mr-6 pa-0"
           :bg-color="store.fSVC > 0 ? 'none' : colorRequired"
           density="compact"
@@ -248,7 +255,7 @@ onBeforeMount(() => {
       <span class="mt-2" density="compact">GST</span>
     
       <v-text-field style="max-width:100px;max-height: 40px;"
-          :oninput = "store.fGST < 0 ? store.fGST = 0 : (store.fGST > 99 ? store.fGST = 99 : store.fGST = Math.Round(store.fGST))"
+          :oninput = "store.fGST < 0 ? store.fGST = 0 : (store.fGST > 99 ? store.fGST = 99 : store.fGST = Math.round(store.fGST))"
           class="ma-0 pa-0"
           :bg-color="store.fGST > 0 ? 'none' : colorRequired"
           density="compact"
@@ -277,7 +284,7 @@ onBeforeMount(() => {
                         variant="outlined"
                         v-model="person.name"/> 
             </v-row>
-            <v-row class="flex-row" style="max-height: 40px;">
+            <v-row v-show="store.showSVCGST" class="flex-row" style="max-height: 40px;">
               <v-checkbox label="SVC" density="compact" v-model="person.hasSVC" class="ma-0 pa-0"></v-checkbox>
               <v-checkbox label="GST" density="compact" v-model="person.hasGST" class="ma-0 pa-0 me-auto"></v-checkbox>  
               <v-icon class="mt-2" icon="mdi-sigma"/><span class="mt-2" width="100%">{{ Math.round(sumArrayAttribute(person.arrFoodItems, 'totalCost')*100)/100 }}</span>              

@@ -61,7 +61,8 @@ onBeforeMount(() => {
         store.fSVC = fSVC;
         store.fGST = fGST;
         arrSVC = arrSVC.map(x => x === '1');
-        arrGST = arrGST.map(x => x === '1');      
+        arrGST = arrGST.map(x => x === '1');
+        store.showSVCGST = arrSVC.reduce((accumulator, currentValue) => accumulator || currentValue,false) || arrGST.reduce((accumulator, currentValue) => accumulator || currentValue,false);
         for(var i = 0; i< arrNames.length; i++){
           var p = {name: arrNames[i], hasSVC: arrSVC[i], hasGST: arrGST[i], arrFoodItems: [], newFood : "", newCost: null};
           if(arrFood.length - 1 >= i){        
@@ -143,17 +144,20 @@ export default {
             </v-sheet>
           </v-col>
         </v-row>
-        <v-row>
-        <v-text-field
-              density="compact"
-              placeholder="Persons"
-              prepend-inner-icon="mdi-account"
-              variant="outlined"
-              v-model="store.iCountPersons"
-              :rules="rulesCount"/>                         
-        <v-btn  @click="store.decrementPersons()" icon="$minus" density="compact"/>
-        <v-btn @click="store.incrementPersons()" icon="$plus" density="compact"/>
-        <v-btn @click="goToDetails" density="compact" :disabled="!valid">GO!</v-btn>
+        <v-row class="flex-row" style="max-height: 40px;">
+          <v-text-field
+                density="compact"
+                placeholder="Persons"
+                prepend-inner-icon="mdi-account"
+                variant="outlined"
+                v-model="store.iCountPersons"
+                :rules="rulesCount"/>                         
+          <v-btn class = "mt-1" @click="store.decrementPersons()" icon="$minus" density="compact"/>
+          <v-btn class = "mt-1" @click="store.incrementPersons()" icon="$plus" density="compact"/>
+          <v-btn class = "mt-1" @click="goToDetails" density="compact" :disabled="!valid">GO!</v-btn>
+        </v-row>
+        <v-row class="flex-row" style="max-height: 40px;">
+        <v-checkbox label="show Service Charge (SVC) and GST Charge (GST)" density="compact" v-model="store.showSVCGST" class="ma-0 pa-0"></v-checkbox>
       </v-row>
     </v-container>
   </v-form>

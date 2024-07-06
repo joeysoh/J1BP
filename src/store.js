@@ -7,6 +7,7 @@ export const useStore = defineStore("store", ()=>{
     const fSVC = ref(10);
     const data = ref();
     const fullpath = ref();
+    const showSVCGST = ref(false);
 
     function setFullPath(path){
       this.fullpath = path;
@@ -24,6 +25,6 @@ export const useStore = defineStore("store", ()=>{
       this.iCountPersons -= value;
       console.log(this.iCountPersons);
     }
-    return {iCountPersons, fGST, fSVC, data, fullpath, decrementPersons,incrementPersons, setData, setFullPath}
+    return {iCountPersons, fGST, fSVC, data, fullpath, decrementPersons,incrementPersons, setData, setFullPath, showSVCGST}
   }  
 );
