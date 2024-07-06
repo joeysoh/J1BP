@@ -85,6 +85,10 @@ async function linkShare(){
   try {
     const docRef = await addDoc(collection(db, "data"), {
       arrPersons : arrPersons.value
+      ,iCountPersons : store.iCountPersons
+      ,fGST : store.fGST
+      ,fSVC : store.fSVC
+      ,showSVCGST : store.showSVCGST
     });
     var url = `${store.fullpath}/?share=${docRef.id}`;
     console.log(`url: ${url}`);

@@ -106,7 +106,11 @@ async function getShareData(share,hasData){
   const docSnap = await getDoc(docRef);
   if (docSnap.exists()) {
     console.log("Document data:", docSnap.data());
-    store.setData(docSnap.data().arrPersons);      
+    store.setData(docSnap.data().arrPersons);
+    store.iCountPersons = docSnap.data().iCountPersons;
+    store.fGST = docSnap.data().fGST;
+    store.fSVC = docSnap.data().fSVC;
+    store.showSVCGST = docSnap.data().showSVCGST;
     router.push('/details');
   } else {
     // docSnap.data() will be undefined in this case    
