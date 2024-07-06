@@ -150,10 +150,10 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
-  if(data){
-    linkURL.effect.run();
+  if(data){    
     arrTotalCost.effect.run();
     arrCalculate.effect.run();
+    linkURL.effect.run();    
   }
 })
 
@@ -161,24 +161,19 @@ function goToHome(){
   router.push('/') 
 }
 
-watch(linkURL.value, async(newlinkURL,oldlinkURL) => {
-  if(newCanvas){
-    QRCode.toCanvas(canvas, linkURL.value, function (error) {
-    if (error) 
-      console.error(error)
-      console.log('qr code error');
-      console.log(linkURL.value);
-    })
-  }
-});
-
 watch(canvas, async(newCanvas,oldCanvas) => {
   if(newCanvas){
-    QRCode.toCanvas(newCanvas, linkURL.value, function (error) {
+    var url = '';
+    if(linkURL.value){
+      url = linkURL.value
+    } else {
+      url = window.location.href;
+    }
+    QRCode.toCanvas(newCanvas, url, function (error) {
     if (error) 
       console.error(error)
       console.log('qr code error');
-      console.log(linkURL.value);
+      console.log(url);
     })
   }
 });
@@ -281,8 +276,7 @@ onBeforeMount(() => {
                       <v-text-field style="width:30%"
                             :bg-color="foodItem.food?.length > 0 ? 'none' : colorRequired"
                             density="compact"
-                            placeholder="Food"
-                            prepend-inner-icon="mdi-silverware-fork-knife"
+                            placeholder="Food"                            
                             variant="outlined"
                             v-model="foodItem.food"/> 
                             
