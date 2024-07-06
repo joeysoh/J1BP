@@ -19,7 +19,14 @@ const canvas = ref(null);
 var arrPersons = ref([]);
 
 function linkCopy(){  
-  navigator.clipboard.writeText(linkURL.value);     
+  var url = '';
+  if(linkURL.value){
+    url = linkURL.value
+  } else {
+    url = window.location.href;
+  }
+  console.log(`copied to clipboard: ${url}`);
+  navigator.clipboard.writeText(url);     
 }
 
 function removeInvalidChar(arr){  
