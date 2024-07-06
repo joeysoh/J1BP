@@ -233,6 +233,7 @@ onBeforeMount(() => {
     <v-row class="flex-row">      
       <span class="mt-2" density="compact">Svc</span>
       <v-text-field style="max-width:100px;max-height: 40px;"
+          :oninput = "store.fSVC < 0 ? store.fSVC = 0 : (store.fSVC > 99 ? store.fSVC = 99 : store.fSVC = Math.Round(store.fSVC))"
           class="mr-6 pa-0"
           :bg-color="store.fSVC > 0 ? 'none' : colorRequired"
           density="compact"
@@ -247,6 +248,7 @@ onBeforeMount(() => {
       <span class="mt-2" density="compact">GST</span>
     
       <v-text-field style="max-width:100px;max-height: 40px;"
+          :oninput = "store.fGST < 0 ? store.fGST = 0 : (store.fGST > 99 ? store.fGST = 99 : store.fGST = Math.Round(store.fGST))"
           class="ma-0 pa-0"
           :bg-color="store.fGST > 0 ? 'none' : colorRequired"
           density="compact"
