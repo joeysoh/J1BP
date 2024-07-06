@@ -325,7 +325,7 @@ onBeforeMount(() => {
 
           <v-container>
             <v-row class="flex-row">
-                <v-btn class="mt-1" @click="addFood(indexPerson)" icon="$plus" density="compact" variant="outlined" 
+                <v-btn class="mt-2" @click="addFood(indexPerson)" icon="$plus" density="compact" variant="outlined" 
                     :disabled = "((person.newFood ?? '').trim() == '') || (person.newCost ?? 0) == 0"/>                
                 <v-text-field style="width:30%"
                           :bg-color="person.newFood?.length > 0 || person.newCost > 0 ? colorRequired:'none'"
@@ -341,7 +341,7 @@ onBeforeMount(() => {
                       type="number"
                       variant="outlined"
                       v-model.number="person.newCost"/>                
-                  <v-btn class="mt-1" @click="person.newFood= null; person.newCost= null" icon="mdi-close" density="compact" variant="outlined" 
+                  <v-btn class="mt-2" @click="person.newFood= null; person.newCost= null" icon="mdi-close" density="compact" variant="outlined" 
                     :disabled = "((person.newFood ?? '').trim() == '') && (person.newCost ?? 0 == 0)"/>       
               </v-row>
             </v-container>
