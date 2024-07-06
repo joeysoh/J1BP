@@ -102,8 +102,7 @@ const arrTotalCost = computed(()=>{
   return arr;
 })
 
-const arrCalculate = computed(() =>{
-  console.log("arrcalculate");
+const arrCalculate = computed(() =>{  
   var arrPersonPayPerson = [];
 
   for(var i = 0; i < arrPersons.value.length; i++){
@@ -161,7 +160,7 @@ onMounted(() => {
   if(data){    
     arrTotalCost.effect.run();
     arrCalculate.effect.run();
-    linkURL.effect.run();    
+    linkURL.effect.run();        
   }
 })
 
@@ -362,17 +361,17 @@ onBeforeMount(() => {
         </v-sheet>
       </template>
     </v-row>
-    <v-row v-if = "arrTotalCost.reduce((accumulator, currentValue) => accumulator + currentValue,0)>0">      
+    <v-row v-show = "arrTotalCost.reduce((accumulator, currentValue) => accumulator + currentValue,0)>0">      
         <v-sheet color="teal-accent-1">
               Amount Owed:
               <template v-for="(arrPaymentAmount, indexPerson) in arrCalculate">
                 <v-divider/>
                 <v-expand-transition>
-                  <v-sheet v-if = "arrCalculate[indexPerson].reduce((accumulator, currentValue) => accumulator + currentValue,0)> 0">
+                  <v-sheet v-show = "arrCalculate[indexPerson].reduce((accumulator, currentValue) => accumulator + currentValue,0)> 0">
                     {{ arrPersons[indexPerson].name }}
                     <template v-for="(paymentAmount,indexPaymentAmount) in arrPaymentAmount">
                       
-                        <div v-if="indexPaymentAmount != indexPerson && paymentAmount > 0">{{ paymentAmount.toFixed(2) }} 
+                        <div v-show ="indexPaymentAmount != indexPerson && paymentAmount > 0">{{ paymentAmount.toFixed(2) }} 
                           <v-icon icon="mdi-arrow-right-thin"></v-icon> 
                           {{ arrPersons[indexPaymentAmount].name }}</div>                    
                     </template>                
@@ -393,9 +392,7 @@ onBeforeMount(() => {
         <v-card>
           <canvas id="canvas" ref="canvas"></canvas>      
         </v-card>
-    </v-dialog>
-
-    
+    </v-dialog>    
   </v-form>
   
 </v-container>  
