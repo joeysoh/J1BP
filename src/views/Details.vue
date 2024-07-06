@@ -224,12 +224,12 @@ onBeforeMount(() => {
 
 <template>
   <v-container>
-    <v-row class="flex-row">            
+    <v-row class="flex-row" style="max-height: 40px;">            
       <v-text-field density="compact" :value="store.iCountPersons + ' People'" max-width="200" :disabled="true"/>      
       <a :href="store.fullpath" v-if="store.data"><v-icon icon="mdi-arrow-left" density="compact" style="width:10%"></v-icon>Reset</a>
       <v-btn v-else @click="goToHome" density="compact"><v-icon icon="mdi-arrow-left" density="compact" style="width:10%"></v-icon>Back</v-btn>                      
     </v-row>                        
-    <v-row class="flex-row">
+    <v-row class="flex-row" style="max-height: 40px;">
       <v-text-field density="compact" value="Service Charge" max-width="200" :disabled="true"/>
       <v-text-field max-width="100"
           :bg-color="store.fSVC > 0 ? 'none' : colorRequired"
@@ -239,9 +239,8 @@ onBeforeMount(() => {
           append-inner-icon="mdi-percent"
           variant="outlined"
           v-model.number="store.fSVC"/> 
-    </v-row>                        
-    <v-row class="flex-row">          
-      <v-text-field density="compact" value="GST" max-width="100" :disabled="true"/>          
+
+          <v-text-field density="compact" value="GST" max-width="100" :disabled="true"/>          
       <v-text-field max-width="100"
           :bg-color="store.fGST > 0 ? 'none' : colorRequired"
           density="compact"
@@ -249,7 +248,7 @@ onBeforeMount(() => {
           type="number"
           append-inner-icon="mdi-percent"
           variant="outlined"
-          v-model.number="store.fGST"/>       
+          v-model.number="store.fGST"/>                 
     </v-row>    
   </v-container>
 
@@ -258,7 +257,7 @@ onBeforeMount(() => {
       <template v-for="(person, indexPerson) in arrPersons">        
         <v-sheet class="ma-1 pa-1" style="min-width: 300px">
           <v-container>
-            <v-row class="flex-row">
+            <v-row class="flex-row" style="max-height: 40px;">
               <v-text-field @focus="$event.target.select()"
                         style="width:30%"
                         :bg-color="person.name?.length > 0 ? 'none' : colorRequired"
@@ -268,12 +267,12 @@ onBeforeMount(() => {
                         variant="outlined"
                         v-model="person.name"/> 
             </v-row>
-            <v-row class="flex-row">
-              <v-checkbox label="Service Charge" density="compact" v-model="person.hasSVC"></v-checkbox>
-              <v-checkbox label="GST" density="compact" v-model="person.hasGST"></v-checkbox>  
-              <v-text-field density="compact" prepend-inner-icon="mdi-sigma" :value="Math.round(sumArrayAttribute(person.arrFoodItems, 'totalCost')*100)/100" max-width="200" :disabled="true"/>              
-              <v-divider/>
+            <v-row class="flex-row" style="max-height: 40px;">
+              <v-checkbox label="SVC" density="compact" v-model="person.hasSVC" class="ma-0 pa-0"></v-checkbox>
+              <v-checkbox label="GST" density="compact" v-model="person.hasGST" class="ma-0 pa-0 me-auto"></v-checkbox>  
+              <v-icon class="mt-2" icon="mdi-sigma"/><span class="mt-2" width="100%">{{ Math.round(sumArrayAttribute(person.arrFoodItems, 'totalCost')*100)/100 }}</span>              
             </v-row>
+            <v-divider class="mt-3"/>
           </v-container>          
   
           <v-expand-transition group="true">
