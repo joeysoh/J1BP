@@ -68,7 +68,7 @@ const linkURL = computed(()=>{
     }
   }
   removeInvalidChar(arrNames);  
-  var data = arrNames.join("~") + "`" + arrSVC.join("~") + "`" + arrGST.join("~") + "`" + arrFood.join("~") + "`" + arrCost.join("~") + "`" + arrShare.join("~");
+  var data = arrNames.join("~") + "`" + arrSVC.join("~") + "`" + arrGST.join("~") + "`" + store.fSVC + "`" + store.fGST + "`" + arrFood.join("~") + "`" + arrCost.join("~") + "`" + arrShare.join("~");
   data = data + "`" + crc.crc16(data).toString();  
   data = data.replaceAll(" ","é");
   return `${store.fullpath}/?data=${encodeURIComponent(data)}`;
@@ -225,31 +225,35 @@ onBeforeMount(() => {
 <template>
   <v-container>
     <v-row class="flex-row" style="max-height: 40px;">            
-      <v-text-field density="compact" :value="store.iCountPersons + ' People'" max-width="200" :disabled="true"/>      
+      {{ store.iCountPersons}}  People
       <a :href="store.fullpath" v-if="store.data"><v-icon icon="mdi-arrow-left" density="compact" style="width:10%"></v-icon>Reset</a>
       <v-btn v-else @click="goToHome" density="compact"><v-icon icon="mdi-arrow-left" density="compact" style="width:10%"></v-icon>Back</v-btn>                      
     </v-row>                        
     
     <v-row class="flex-row">      
-      <span class="mt-2" density="compact">Svc Charge</span>
-      <v-text-field style="max-width:80px;max-height: 40px;"
+      <span class="mt-2" density="compact">Svc</span>
+      <v-text-field style="max-width:100px;max-height: 40px;"
           class="mr-6 pa-0"
           :bg-color="store.fSVC > 0 ? 'none' : colorRequired"
           density="compact"
           placeholder="SVC"
           type="number"
+          :max="99"
+          :min="0"          
           append-inner-icon="mdi-percent"
           variant="outlined"
           v-model.number="store.fSVC"/>       
       
       <span class="mt-2" density="compact">GST</span>
     
-      <v-text-field style="max-width:80px;max-height: 40px;"
+      <v-text-field style="max-width:100px;max-height: 40px;"
           class="ma-0 pa-0"
           :bg-color="store.fGST > 0 ? 'none' : colorRequired"
           density="compact"
           placeholder="GST"
           type="number"
+          :max="99"
+          :min="0"          
           append-inner-icon="mdi-percent"
           variant="outlined"
           v-model.number="store.fGST"/>      

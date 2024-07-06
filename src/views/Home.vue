@@ -40,20 +40,26 @@ onBeforeMount(() => {
     var arrShare = [];
     var arrSVC = [];
     var arrGST = [];
+    var fSVC = 0.00;
+    var fGST = 0.00;
     var strCRC = '';
     var arr = decodeURIComponent(data).replaceAll('é'," ").split('`'); 
     console.log(arr);
-    if(arr.length == 7){
+    if(arr.length == 9){
       arrNames = arr[0].split("~");      
       arrSVC = arr[1].split("~");
       arrGST = arr[2].split("~");
-      arrFood = arr[3].split("~");
-      arrCost = arr[4].split("~");
-      arrShare = arr[5].split("~");
-      strCRC =  arr[6];
-
-      if(crc.crc16(arrNames.join("~") + "`" + arrSVC.join("~") + "`" + arrGST.join("~") + "`" + arrFood.join("~") + "`" + arrCost.join("~") + "`" + arrShare.join("~")).toString() == strCRC){
+      fSVC = arr[3];
+      fGST = arr[4];
+      arrFood = arr[5].split("~");
+      arrCost = arr[6].split("~");
+      arrShare = arr[7].split("~");
+      strCRC =  arr[8];
+      
+      if(crc.crc16(arrNames.join("~") + "`" + arrSVC.join("~") + "`" + arrGST.join("~") + "`" + fSVC + "`" + fGST + "`" + arrFood.join("~") + "`" + arrCost.join("~") + "`" + arrShare.join("~")).toString() == strCRC){
         var arrPersons = [];
+        store.fSVC = fSVC;
+        store.fGST = fGST;
         arrSVC = arrSVC.map(x => x === '1');
         arrGST = arrGST.map(x => x === '1');      
         for(var i = 0; i< arrNames.length; i++){
