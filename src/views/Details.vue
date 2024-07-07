@@ -14,11 +14,13 @@ import { collection, addDoc, getDocs, getDoc, doc} from "firebase/firestore";
 const { mobile } = useDisplay()
 const router = useRouter() //composition api reference
 const showQR = ref(false);
+const showDetails = ref(false);
 const store = useStore();
 //const colorRequired = ref("purple-lighten-4");
 const colorRequired = ref("#FFB6C1");
 const data = store.data;
 const canvas = ref(null);
+const iShowDetailsIndex = ref(null);
 
 var arrPersons = ref([]);
 
@@ -382,7 +384,7 @@ onBeforeMount(() => {
         </v-sheet>
       </template>
     </v-row>
-    <v-row v-show = "arrTotalCost.reduce((accumulator, currentValue) => accumulator + currentValue,0)>0">      
+    <v-row v-show = "arrTotalCost.reduce((accumulator, currentValue) => accumulator + currentValue,0)>0" @click = "showDetails = true">      
         <v-sheet color="teal-accent-1">
               Amount Owed:
               <template v-for="(arrPaymentAmount, indexPerson) in arrCalculate">
@@ -407,20 +409,50 @@ onBeforeMount(() => {
       <span class="mx-2" width="100%"><v-icon icon="mdi-sigma"/>{{ Math.round(arrTotalCost.reduce((accumulator, currentValue) => accumulator + currentValue,0)*100)/100 }}</span>
       <!-- <v-sheet @click = "showQR = !showQR;" :elevation="24"  class="position-absolute top-0 left-0" v-show = "showQR" rounded
         height="100%" width="100%" color="teal-lighten-3">          
-      </v-sheet> -->
+      </v-sheet> -->      
     </v-row>        
 
     <v-dialog v-model="showQR" width="auto" @click = "showQR = !showQR;">
         <v-card>
           <canvas id="canvas" ref="canvas"></canvas>      
         </v-card>
-    </v-dialog>    
-  </v-form>
-  
+    </v-dialog>
+    
+    <v-dialog v-model="showDetails" width="auto">
+        <v-card>          
+            <v-card-title class="d-flex justify-space-between align-center">
+              <div class="text-h5 text-medium-emphasis ps-2">Select a person</div>
+              <v-icon class="right-0" @click="showDetails = false" icon="mdi-close" density="compact"></v-icon>  
+            </v-card-title>
+            <v-divider class="mb-1"></v-divider>            
+              <v-radio-group inline v-model="iShowDetailsIndex">
+                <template v-for="(person, indexSharePerson) in arrPersons" class="ma-0 pa-0 me-auto">
+                  <v-radio :label="person.name" :value="indexSharePerson"></v-radio>  
+                </template>
+              </v-radio-group>
+            <v-divider class="mb-1"></v-divider>
+          <v-expand-transition group="false">
+          <v-data-table                      
+            hide-default-footer  
+            :group-by="[
+                {
+                  key: 'to',
+                  order: 'asc',
+                },
+              ]"        
+            :headers="[{ key: 'food', title: 'Food', align: 'start', sortable: true},{ key: 'per', title: 'Cost', value: item => `${Math.round(item.per * 100)/100}`}, {key:'data-table-group', title:'Pay To'}]"          
+            :items="arrPersons.reduce((accumulator, currentValue, currentIndex) => {
+              var filtered = currentValue.arrFoodItems.filter((f)=>f.arrShare.includes(iShowDetailsIndex));
+              filtered.forEach(element => {
+                element.to = arrPersons[currentIndex].name;
+              });
+              return accumulator.concat(filtered);
+            },[])"></v-data-table>
+          </v-expand-transition>               
+        </v-card>        
+    </v-dialog>
+  </v-form>  
 </v-container>  
-      
-      
 </template>
-
 <style scoped>
 </style>
