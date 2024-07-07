@@ -15,7 +15,8 @@ const { mobile } = useDisplay()
 const router = useRouter() //composition api reference
 const showQR = ref(false);
 const store = useStore();
-const colorRequired = "purple-lighten-4";
+//const colorRequired = ref("purple-lighten-4");
+const colorRequired = ref("#FFB6C1");
 const data = store.data;
 const canvas = ref(null);
 
@@ -145,7 +146,11 @@ const arrCalculate = computed(() =>{
           }
         }        
       } else {
-        per = arrPersons.value[i].arrFoodItems[j].cost;        
+        per = arrPersons.value[i].arrFoodItems[j].cost;
+        svc = (store.fSVC / 100 * per) * (arrPersons.value[i].hasSVC?1:0);//svc amount from per * svc charge, if svc not checked, 0
+        gst = (store.fGST / 100 * (per + svc)) * (arrPersons.value[i].hasGST?1:0);        
+        console.log(`per:${per} svc: ${svc} gst: ${gst} total per: ${per + svc + gst}`);
+        per = per + svc + gst;
       }
     }
   }
@@ -237,8 +242,8 @@ onBeforeMount(() => {
 
 <template>
   <v-container class="flex-row ma-0 pa-1 me-auto">
-    <v-row class="flex-row ma-0 pa-0 me-auto" style="max-height: 40px;">
-      <span class="ma-0 pa-0 me-auto">
+    <v-row class="flex-row my-1 py-1 me-auto" style="max-height: 40px;">
+      <span class="mx-1 px-1 me-auto">
       {{ store.iCountPersons}}  People      
       </span>
       <span>
@@ -250,9 +255,9 @@ onBeforeMount(() => {
       </span>
     </v-row>                        
     
-    <v-row v-show="store.showSVCGST" class="flex-row">      
-      <span class="mt-2" density="compact">Svc</span>
-      <v-text-field style="max-width:100px;max-height: 40px;"
+    <v-row v-show="store.showSVCGST" class="flex-row my-1 py-1" style="max-height: 40px;">      
+      <span class="mx-1 px-1">Svc</span>
+      <v-text-field style="max-width:100px;"
           :oninput = "store.fSVC < 0 ? store.fSVC = 0 : (store.fSVC > 99 ? store.fSVC = 99 : store.fSVC = Math.round(store.fSVC))"
           class="mr-6 pa-0"
           :bg-color="store.fSVC > 0 ? 'none' : colorRequired"
@@ -267,9 +272,8 @@ onBeforeMount(() => {
       
       <span class="mt-2" density="compact">GST</span>
     
-      <v-text-field style="max-width:100px;max-height: 40px;"
-          :oninput = "store.fGST < 0 ? store.fGST = 0 : (store.fGST > 99 ? store.fGST = 99 : store.fGST = Math.round(store.fGST))"
-          class="ma-0 pa-0"
+      <v-text-field style="max-width:100px;"
+          :oninput = "store.fGST < 0 ? store.fGST = 0 : (store.fGST > 99 ? store.fGST = 99 : store.fGST = Math.round(store.fGST))"          
           :bg-color="store.fGST > 0 ? 'none' : colorRequired"
           density="compact"
           placeholder="GST"
@@ -290,19 +294,20 @@ onBeforeMount(() => {
             <v-row class="flex-row" style="max-height: 40px;">
               <v-text-field @focus="$event.target.select()"
                         style="width:30%"
+                        class="ma-0 pa-0 me-auto"
                         :bg-color="person.name?.length > 0 ? 'none' : colorRequired"
                         density="compact"
                         placeholder="Name"
                         prepend-inner-icon="mdi-account"
                         variant="outlined"
-                        v-model="person.name"/> 
+                        v-model="person.name"/>
+              <span class="mt-2" v-show="!store.showSVCGST" width="100%"><v-icon icon="mdi-sigma"/>{{ Math.round(sumArrayAttribute(person.arrFoodItems, 'totalCost')*100)/100 }}</span>
             </v-row>
             <v-row v-show="store.showSVCGST" class="flex-row" style="max-height: 40px;">
               <v-checkbox label="SVC" density="compact" v-model="person.hasSVC" class="ma-0 pa-0"></v-checkbox>
-              <v-checkbox label="GST" density="compact" v-model="person.hasGST" class="ma-0 pa-0 me-auto"></v-checkbox>  
-              <v-icon class="mt-2" icon="mdi-sigma"/><span class="mt-2" width="100%">{{ Math.round(sumArrayAttribute(person.arrFoodItems, 'totalCost')*100)/100 }}</span>              
+              <v-checkbox label="GST" density="compact" v-model="person.hasGST" class="ma-0 pa-0 me-auto"></v-checkbox>                            
+              <v-icon class="mt-2" icon="mdi-sigma"/><span class="mt-2" width="100%">{{ Math.round(sumArrayAttribute(person.arrFoodItems, 'totalCost')*100)/100 }}</span>
             </v-row>
-            <v-divider class="mt-3"/>
           </v-container>          
   
           <v-expand-transition group="true">
@@ -331,18 +336,19 @@ onBeforeMount(() => {
                 <v-expand-transition>
                 <v-row v-if="foodItem.showShare">
                   <v-divider/>
-                    <template v-for="(person, indexSharePerson) in arrPersons">
+                    <template v-for="(person, indexSharePerson) in arrPersons" class="ma-0 pa-0 me-auto">
                       <v-sheet>
                         <v-checkbox :label="person.name" :value = "indexSharePerson" v-model="foodItem.arrShare" density="compact"></v-checkbox>                        
                       </v-sheet>
-                    </template>                    
-                    <v-text-field style="width:30%"
-                        :bg-color="foodItem.arrShare.length > 0 ? 'none' : colorRequired"
-                        density="compact"
-                        prepend-inner-icon="mdi-account"
-                        disabled = true                        
-                        v-bind:value="foodItem.arrShare.length > 0 ? ('$' + foodItem.per ? Math.round(foodItem.per*100)/100 : 0) : 'Invalid'"/>
-                    <v-divider/><!-- disabled textfield, due to alignment issues with interpolated text -->
+                    </template>
+                    <v-icon class="mt-2" icon="mdi-account"/>
+                    <!-- :bg-color="foodItem.arrShare.length > 0 ? 'none' : colorRequired"  -->
+                    <span 
+                      :style="{color: foodItem.arrShare.length > 0 ? undefined : colorRequired}"
+                      class="mt-2" width="100%">
+                      {{ foodItem.arrShare.length > 0 ? ('$' + foodItem.per ? Math.round(foodItem.per*100)/100 : 0) : 'Invalid' }}
+                    </span>
+                    <v-divider/>
                 </v-row>             
               </v-expand-transition>                     
               </v-container>            
@@ -396,7 +402,8 @@ onBeforeMount(() => {
       
       <v-btn density="compact" icon="mdi-content-copy" @Click = "linkCopy"></v-btn>
       <v-btn density="compact" icon="mdi-share-variant-outline" @Click = "linkShare"></v-btn>     
-      <v-btn density="compact" icon="mdi-qrcode" @click = "showQR = !showQR; linkURL;"></v-btn>
+      <v-btn class="me-auto" density="compact" icon="mdi-qrcode" @click = "showQR = !showQR; linkURL;"></v-btn>
+      <span class="mx-2" width="100%"><v-icon icon="mdi-sigma"/>{{ Math.round(arrTotalCost.reduce((accumulator, currentValue) => accumulator + currentValue,0)*100)/100 }}</span>
       <!-- <v-sheet @click = "showQR = !showQR;" :elevation="24"  class="position-absolute top-0 left-0" v-show = "showQR" rounded
         height="100%" width="100%" color="teal-lighten-3">          
       </v-sheet> -->
