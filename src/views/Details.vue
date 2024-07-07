@@ -385,8 +385,8 @@ onBeforeMount(() => {
         </v-sheet>
       </template>
     </v-row>
-    <v-row v-show = "arrTotalCost.reduce((accumulator, currentValue) => accumulator + currentValue,0)>0" @click = "showDetails = true">      
-        <v-sheet color="teal-accent-1">
+    <v-row v-show = "arrTotalCost.reduce((accumulator, currentValue) => accumulator + currentValue,0)>0">      
+        <v-sheet color="teal-accent-1"  @click = "showDetails = true">
               Amount Owed:
               <template v-for="(arrPaymentAmount, indexPerson) in arrCalculate">
                 <v-divider/>
