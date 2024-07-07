@@ -117,7 +117,7 @@ const arrTotalCost = computed(()=>{
   return arr;
 })
 
-const arrCalculate = computed(() =>{  
+const arrCalculate = computed(() =>{    
   var arrPersonPayPerson = [];
 
   for(var i = 0; i < arrPersons.value.length; i++){
@@ -149,6 +149,7 @@ const arrCalculate = computed(() =>{
         per = arrPersons.value[i].arrFoodItems[j].cost;
         svc = (store.fSVC / 100 * per) * (arrPersons.value[i].hasSVC?1:0);//svc amount from per * svc charge, if svc not checked, 0
         gst = (store.fGST / 100 * (per + svc)) * (arrPersons.value[i].hasGST?1:0);        
+        arrPersons.value[i].arrFoodItems[j].totalCost = per;
         console.log(`per:${per} svc: ${svc} gst: ${gst} total per: ${per + svc + gst}`);
         per = per + svc + gst;
       }
