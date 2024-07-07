@@ -161,7 +161,7 @@ export default {
           <v-btn class = "mt-1" @click="goToDetails" density="compact" :disabled="!valid">GO!</v-btn>
         </v-row>
         <v-row class="flex-row" style="max-height: 40px;">
-        <v-checkbox label="show Service Charge (SVC) and GST Charge (GST)" density="compact" v-model="store.showSVCGST" class="ma-0 pa-0"></v-checkbox>
+        <v-checkbox label="show Service (SVC) & GST Charge (GST)" density="compact" v-model="store.showSVCGST" class="ma-0 pa-0"></v-checkbox>
       </v-row>
     </v-container>
   </v-form>
