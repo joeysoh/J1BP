@@ -21,6 +21,7 @@ const colorRequired = ref("#FFB6C1");
 const data = store.data;
 const canvas = ref(null);
 const iShowDetailsIndex = ref(null);
+const arrShowFilterPayTo=ref([]);
 
 var arrPersons = ref([]);
 
@@ -433,26 +434,32 @@ onBeforeMount(() => {
             <v-divider class="mb-1"></v-divider>
           <v-expand-transition group="false">
           <v-data-table                      
-            hide-default-footer  
-            :group-by="[
-                {
-                  key: 'to',
-                  order: 'asc',
-                },
-              ]"        
-            :headers="[{ key: 'food', title: 'Food', align: 'start', sortable: true},{ key: 'per', title: 'Cost', value: item => `${Math.round(item.per * 100)/100}`}, {key:'data-table-group', title:'Pay To'}]"          
+            hide-default-footer   
+            search="''"          
+            :custom-filter="(value, query, item)=>{return arrShowFilterPayTo.includes(Array.from(arrPersons,(x)=>x.name).indexOf(value))}"            
+            :headers="[{ key: 'food', title: 'Food', align: 'start', sortable: true, filterable : false},{ key: 'per', title: 'Cost', value: item => `${Math.round(item.per * 100)/100}`, filterable : false}, {key: 'to', title:'To'}]"
             :items="arrPersons.reduce((accumulator, currentValue, currentIndex) => {
-              var filtered = currentValue.arrFoodItems.filter((f)=>f.arrShare.includes(iShowDetailsIndex));
+              var filtered = currentValue.arrFoodItems.filter((f)=>(f.arrShare.includes(iShowDetailsIndex) && currentIndex != iShowDetailsIndex));
               filtered.forEach(element => {
                 element.to = arrPersons[currentIndex].name;
               });
               return accumulator.concat(filtered);
             },[])"></v-data-table>
-          </v-expand-transition>               
+            <!-- search must be included as an option for custom filter to work-->
+            <!-- :group-by="[{key: 'to',order: 'asc',},]" -->
+            <!--header for grouping: {key:'data-table-group', title:'Pay To'} -->
+
+            <v-chip-group v-model="arrShowFilterPayTo" column multiple>
+              <template v-for="n in Array.from(arrPersons,(x)=>x.name)" v-bind:key="index">
+                <v-chip :text = "n" filter></v-chip>
+              </template>              
+            </v-chip-group>            
+          </v-expand-transition>   
         </v-card>        
     </v-dialog>
   </v-form>  
 </v-container>  
+
 </template>
 <style scoped>
 </style>
