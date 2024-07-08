@@ -426,7 +426,10 @@ onBeforeMount(() => {
               <v-icon class="right-0" @click="showDetails = false" icon="mdi-close" density="compact"></v-icon>  
             </v-card-title>
             <v-divider class="mb-1"></v-divider>            
-              <v-radio-group inline v-model="iShowDetailsIndex">
+              <v-radio-group inline v-model="iShowDetailsIndex" 
+              :onchange="(()=>{arrShowFilterPayTo=[...Array(arrPersons.length).keys().filter((f,i)=>(i!=iShowDetailsIndex))]})" 
+              :onload="(()=>{if(!iShowDetailsIndex)iShowDetailsIndex = 0;arrShowFilterPayTo=[...Array(arrPersons.length).keys().filter((f,i)=>(i!=iShowDetailsIndex))]})()"
+              >
                 <template v-for="(person, indexSharePerson) in arrPersons" class="ma-0 pa-0 me-auto">
                   <v-radio :label="person.name" :value="indexSharePerson"></v-radio>  
                 </template>
@@ -444,16 +447,17 @@ onBeforeMount(() => {
                 element.to = arrPersons[currentIndex].name;
               });
               return accumulator.concat(filtered);
-            },[])"></v-data-table>
+            },[])">
+          </v-data-table>
             <!-- search must be included as an option for custom filter to work-->
             <!-- :group-by="[{key: 'to',order: 'asc',},]" -->
             <!--header for grouping: {key:'data-table-group', title:'Pay To'} -->
 
             <v-chip-group v-model="arrShowFilterPayTo" column multiple>
-              <template v-for="n in Array.from(arrPersons,(x)=>x.name)" v-bind:key="index">
-                <v-chip :text = "n" filter></v-chip>
+              <template v-for="n in [...Array(arrPersons.length).keys()]" v-bind:key="index">
+                <v-chip v-show="n!=iShowDetailsIndex" :text = "arrPersons[n].name" filter></v-chip>
               </template>              
-            </v-chip-group>            
+            </v-chip-group>                
           </v-expand-transition>   
         </v-card>        
     </v-dialog>
