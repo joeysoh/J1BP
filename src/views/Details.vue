@@ -11,7 +11,7 @@ import crc from 'crc';
 import db from './../firebase';
 import { collection, addDoc, getDocs, getDoc, doc} from "firebase/firestore"; 
 
-const { mobile } = useDisplay()
+const { mobile, height, width } = useDisplay() //destructuring assignment
 const router = useRouter() //composition api reference
 const showQR = ref(false);
 const showDetails = ref(false);
@@ -185,6 +185,8 @@ onMounted(() => {
     arrCalculate.effect.run();
     linkURL.effect.run();        
   }  
+
+  console.log(`width: ${width.value}, height: ${height.value}`);
 })
 
 function goToHome(){  
@@ -419,24 +421,27 @@ onBeforeMount(() => {
         </v-card>
     </v-dialog>
     
-    <v-dialog v-model="showDetails" width="auto">
-        <v-card>          
+    <v-dialog v-model="showDetails" width="auto" class="ma-1 pa-1">
+      <v-container class="flex-row ma-0 pa-0 me-auto">
+        <v-card>
             <v-card-title class="d-flex justify-space-between align-center">
-              <div class="text-h5 text-medium-emphasis ps-2">Select a person</div>
+              <v-label density="" class="text-h5 text-medium-emphasis ps-2">Select a person</v-label>
               <v-icon class="right-0" @click="showDetails = false" icon="mdi-close" density="compact"></v-icon>  
             </v-card-title>
             <v-divider class="mb-1"></v-divider>            
-              <v-radio-group inline v-model="iShowDetailsIndex" 
+              <v-radio-group inline v-model="iShowDetailsIndex" density="compact" class="mb-0 pa-0"
               :onchange="(()=>{arrShowFilterPayTo=[...Array(arrPersons.length).keys().filter((f,i)=>(i!=iShowDetailsIndex))]})" 
               :onload="(()=>{if(!iShowDetailsIndex)iShowDetailsIndex = 0;arrShowFilterPayTo=[...Array(arrPersons.length).keys().filter((f,i)=>(i!=iShowDetailsIndex))]})()"
               >
                 <template v-for="(person, indexSharePerson) in arrPersons" class="ma-0 pa-0 me-auto">
-                  <v-radio :label="person.name" :value="indexSharePerson"></v-radio>  
+                  <v-radio :label="person.name" :value="indexSharePerson" density="compact" class="mb-0 pa-0"></v-radio>  
                 </template>
               </v-radio-group>
-            <v-divider class="mb-1"></v-divider>
+            <v-divider class="mb-0"></v-divider>            
           <v-expand-transition group="false">
-          <v-data-table                      
+          <v-data-table         
+            style="max-height:50vh;"   
+            density="compact"          
             hide-default-footer   
             search="''"          
             :custom-filter="(value, query, item)=>{return arrShowFilterPayTo.includes(Array.from(arrPersons,(x)=>x.name).indexOf(value))}"            
@@ -452,14 +457,20 @@ onBeforeMount(() => {
             <!-- search must be included as an option for custom filter to work-->
             <!-- :group-by="[{key: 'to',order: 'asc',},]" -->
             <!--header for grouping: {key:'data-table-group', title:'Pay To'} -->
-
-            <v-chip-group v-model="arrShowFilterPayTo" column multiple>
+          </v-expand-transition>
+        </v-card>         
+      </v-container>   
+      <v-container class="flex-row ma-0 pa-0 me-auto">
+        <v-card>
+        <v-expand-transition group="false">
+            <v-chip-group v-model="arrShowFilterPayTo" column multiple density="compact">
               <template v-for="n in [...Array(arrPersons.length).keys()]" v-bind:key="index">
-                <v-chip v-show="n!=iShowDetailsIndex" :text = "arrPersons[n].name" filter></v-chip>
+                <v-chip v-show="n!=iShowDetailsIndex" :text = "arrPersons[n].name" filter density="compact"></v-chip>
               </template>              
             </v-chip-group>                
           </v-expand-transition>   
-        </v-card>        
+        </v-card> 
+      </v-container> 
     </v-dialog>
   </v-form>  
 </v-container>  
