@@ -439,10 +439,11 @@ onBeforeMount(() => {
               </v-radio-group>
             <v-divider class="mb-0"></v-divider>            
           <v-expand-transition group="false">
-          <v-data-table         
-            style="max-height:50vh;"   
+          <v-data-table
+            style="max-height: 50vh;"
             density="compact"          
-            hide-default-footer   
+            hide-default-footer
+            items-per-page="-1"  
             search="''"          
             :custom-filter="(value, query, item)=>{return arrShowFilterPayTo.includes(Array.from(arrPersons,(x)=>x.name).indexOf(value))}"            
             :headers="[{ key: 'food', title: 'Food', align: 'start', sortable: true, filterable : false},{ key: 'per', title: 'Cost', value: item => `${Math.round(item.per * 100)/100}`, filterable : false}, {key: 'to', title:'To'}]"
@@ -457,7 +458,7 @@ onBeforeMount(() => {
             <!-- search must be included as an option for custom filter to work-->
             <!-- :group-by="[{key: 'to',order: 'asc',},]" -->
             <!--header for grouping: {key:'data-table-group', title:'Pay To'} -->
-          </v-expand-transition>
+          </v-expand-transition>          
         </v-card>         
       </v-container>   
       <v-container class="flex-row ma-0 pa-0 me-auto">
