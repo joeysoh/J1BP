@@ -22,6 +22,7 @@ const data = store.data;
 const canvas = ref(null);
 const iShowDetailsIndex = ref(null);
 const arrShowFilterPayTo=ref([]);
+const isShowSummaryDetails = ref(false);
 
 var arrPersons = ref([]);
 
@@ -139,7 +140,7 @@ const arrCalculate = computed(() =>{
         per = arrPersons.value[i].arrFoodItems[j].cost / arrShare.length; //get per person cost by dividing cost of food over # of people
         svc = (store.fSVC / 100 * per) * (arrPersons.value[i].hasSVC?1:0);//svc amount from per * svc charge, if svc not checked, 0
         gst = (store.fGST / 100 * (per + svc)) * (arrPersons.value[i].hasGST?1:0);        
-        console.log(`per:${per} svc: ${svc} gst: ${gst} total per: ${per + svc + gst}`);
+        //console.log(`per:${per} svc: ${svc} gst: ${gst} total per: ${per + svc + gst}`);
         per = per + svc + gst;
         arrPersons.value[i].arrFoodItems[j].per = per;      
         arrPersons.value[i].arrFoodItems[j].totalCost = per * arrShare.length;
@@ -153,14 +154,13 @@ const arrCalculate = computed(() =>{
         svc = (store.fSVC / 100 * per) * (arrPersons.value[i].hasSVC?1:0);//svc amount from per * svc charge, if svc not checked, 0
         gst = (store.fGST / 100 * (per + svc)) * (arrPersons.value[i].hasGST?1:0);        
         arrPersons.value[i].arrFoodItems[j].totalCost = per;
-        console.log(`per:${per} svc: ${svc} gst: ${gst} total per: ${per + svc + gst}`);
+        //console.log(`per:${per} svc: ${svc} gst: ${gst} total per: ${per + svc + gst}`);
         per = per + svc + gst;
       }
     }
   }
 
-  for(var i = 0; i < arrPersonPayPerson.length - 1; i++){ //first to 2nd last, since the last one doesn't need to be iterated.
-    var arrPay = arrPersonPayPerson[i];
+  for(var i = 0; i < arrPersonPayPerson.length - 1; i++){ //first to 2nd last, since the last one doesn't need to be iterated.    
     for(var j = i + 1; j < arrPersonPayPerson.length; j++){
       var diff = arrPersonPayPerson[j][i] - arrPersonPayPerson[i][j];
       if(diff < 0){
@@ -176,6 +176,103 @@ const arrCalculate = computed(() =>{
   return arrPersonPayPerson;
 });
 
+const arrCalculateWithLeastTrx = computed(() =>{    
+  var arrPersonPayPerson = [];
+
+  for(var i = 0; i < arrPersons.value.length; i++){
+    var arrPay = Array(arrPersons.value.length).fill(0);
+    arrPersonPayPerson.push(arrPay);    
+  }
+
+  for(var i = 0; i < arrPersons.value.length; i++){ //for each person    
+    for(var j = 0; j < arrPersons.value[i].arrFoodItems.length; j++){ //for each food item paid by person         
+      var per = 0;
+      var svc = 0.00;
+      var gst = 0.00;
+      var arrShare = arrPersons.value[i].arrFoodItems[j].arrShare;
+      console.log(`per: ${per} share count: ${arrShare.length}`);
+      if(arrShare.length> 0){        
+        per = arrPersons.value[i].arrFoodItems[j].cost / arrShare.length; //get per person cost by dividing cost of food over # of people
+        svc = (store.fSVC / 100 * per) * (arrPersons.value[i].hasSVC?1:0);//svc amount from per * svc charge, if svc not checked, 0
+        gst = (store.fGST / 100 * (per + svc)) * (arrPersons.value[i].hasGST?1:0);        
+        //console.log(`per:${per} svc: ${svc} gst: ${gst} total per: ${per + svc + gst}`);
+        per = per + svc + gst;
+        arrPersons.value[i].arrFoodItems[j].per = per;      
+        arrPersons.value[i].arrFoodItems[j].totalCost = per * arrShare.length;
+        for(var k = 0; k < arrShare.length; k++){ //for each person who shared the food
+          if(arrShare[k] != i){//excluding person who paid
+            arrPersonPayPerson[arrShare[k]][i] += per;//person who shares food, has amount in array position for person who paid, added with cost of food per person
+          }
+        }        
+      } else {
+        per = arrPersons.value[i].arrFoodItems[j].cost;
+        svc = (store.fSVC / 100 * per) * (arrPersons.value[i].hasSVC?1:0);//svc amount from per * svc charge, if svc not checked, 0
+        gst = (store.fGST / 100 * (per + svc)) * (arrPersons.value[i].hasGST?1:0);        
+        arrPersons.value[i].arrFoodItems[j].totalCost = per;
+        //console.log(`per:${per} svc: ${svc} gst: ${gst} total per: ${per + svc + gst}`);
+        per = per + svc + gst;
+      }
+    }
+  }
+
+  var arrNumberOfPayor = new Array(arrPersons.value.length).fill(0); //array of number of people paying to each person in array (payor count for person 1, payor count for person 2, ...)  
+  console.log("arrNumberOfPayor")
+  console.log(arrNumberOfPayor)
+  for(var i = 0; i < arrPersonPayPerson.length - 1; i++){ //first to 2nd last, since the last one doesn't need to be iterated.    
+    for(var j = i + 1; j < arrPersonPayPerson.length; j++){
+      var diff = arrPersonPayPerson[j][i] - arrPersonPayPerson[i][j];//a->b or b->a, one of them will become 0 after subtraction
+      if(diff < 0){
+        arrPersonPayPerson[j][i] = 0;
+        arrPersonPayPerson[i][j] = diff * -1;     
+        arrNumberOfPayor[j]++;
+      } else {
+        arrPersonPayPerson[j][i] = diff;
+        arrPersonPayPerson[i][j] = 0;
+        arrNumberOfPayor[i]++;
+      }
+    }
+  }
+  
+  console.log(arrPersonPayPerson[1]);
+  var iBanker = arrNumberOfPayor.indexOf(Math.max(...arrNumberOfPayor)); //person index is banker. Banker is the middleman for all transactions. Max # of transactions will be arrPerson.Length - 1 via banker
+  console.log(`iBanker: ${iBanker}`);
+  for(var i = 0; i < arrPersonPayPerson.length; i++){
+    for(var j = 0; j < arrPersonPayPerson.length; j++){
+      if(j==i || arrPersonPayPerson[i][j] == 0 || j == iBanker || i == iBanker){
+        continue;
+      }
+      arrPersonPayPerson[i][iBanker] += arrPersonPayPerson[i][j];
+      if(arrPersonPayPerson[iBanker][i] > 0){
+        var diff = arrPersonPayPerson[i][iBanker] - arrPersonPayPerson[iBanker][i];//a->b or b->a, one of them will become 0 after subtraction
+        if(diff < 0){
+          arrPersonPayPerson[i][iBanker] = 0;
+          arrPersonPayPerson[iBanker][i] = diff * -1;
+        } else {
+          arrPersonPayPerson[i][iBanker] = diff;
+          arrPersonPayPerson[iBanker][i] = 0;
+        }
+      }
+
+      arrPersonPayPerson[iBanker][j] += arrPersonPayPerson[i][j];
+      if(arrPersonPayPerson[j][iBanker] > 0){
+        var diff = arrPersonPayPerson[iBanker][j] - arrPersonPayPerson[j][iBanker];//a->b or b->a, one of them will become 0 after subtraction
+        if(diff < 0){
+          arrPersonPayPerson[iBanker][j] = 0;
+          arrPersonPayPerson[j][iBanker] = diff * -1;
+        } else {
+          arrPersonPayPerson[iBanker][j] = diff;
+          arrPersonPayPerson[j][iBanker] = 0;
+        }        
+      }
+
+      arrPersonPayPerson[i][j] = 0;//accounted for via banker
+    }
+  }
+  console.log(arrPersonPayPerson[1]);
+
+  return arrPersonPayPerson;
+});
+
 onBeforeMount(() => {
 })
 
@@ -183,6 +280,7 @@ onMounted(() => {
   if(data){    
     arrTotalCost.effect.run();
     arrCalculate.effect.run();
+    arrCalculateWithLeastTrx.effect.run();
     linkURL.effect.run();        
   }  
 
@@ -386,14 +484,17 @@ onBeforeMount(() => {
             
         </v-sheet>
       </template>
-    </v-row>
+    </v-row>    
     <v-row v-show = "arrTotalCost.reduce((accumulator, currentValue) => accumulator + currentValue,0)>0">      
-        <v-sheet color="teal-accent-1"  @click = "showDetails = true">
-              Amount Owed:
+        <div>
+        <v-sheet color="teal-accent-1" class="ma-0 pa-1">
+          Amount Owed:          
+        </v-sheet>
+        <v-sheet v-if = "isShowSummaryDetails" color="teal-accent-1"  @click = "showDetails = true" class="ma-0 pa-1">              
               <template v-for="(arrPaymentAmount, indexPerson) in arrCalculate">
                 <v-divider/>
                 <v-expand-transition>
-                  <v-sheet v-show = "arrCalculate[indexPerson].reduce((accumulator, currentValue) => accumulator + currentValue,0)> 0">
+                  <v-sheet v-show = "arrCalculate[indexPerson].reduce((accumulator, currentValue) => accumulator + currentValue,0).toFixed(2)> 0">
                     {{ arrPersons[indexPerson].name }}
                     <template v-for="(paymentAmount,indexPaymentAmount) in arrPaymentAmount">
                       
@@ -405,7 +506,26 @@ onBeforeMount(() => {
                 </v-expand-transition>          
               </template>           
         </v-sheet>           
-      
+        <v-sheet v-else color="teal-accent-1"  @click = "showDetails = true" class="ma-0 pa-1">              
+              <template v-for="(arrPaymentAmount, indexPerson) in arrCalculateWithLeastTrx">
+                <v-divider/>
+                <v-expand-transition>
+                  <v-sheet v-show = "arrCalculateWithLeastTrx[indexPerson].reduce((accumulator, currentValue) => accumulator + currentValue,0).toFixed(2)> 0">
+                    {{ arrPersons[indexPerson].name }}
+                    <template v-for="(paymentAmount,indexPaymentAmount) in arrPaymentAmount">
+                      
+                        <div v-show ="indexPaymentAmount != indexPerson && paymentAmount > 0">{{ paymentAmount.toFixed(2) }} 
+                          <v-icon icon="mdi-arrow-right-thin"></v-icon> 
+                          {{ arrPersons[indexPaymentAmount].name }}</div>                    
+                    </template>                
+                  </v-sheet>   
+                </v-expand-transition>          
+              </template>           
+        </v-sheet>
+        <v-sheet color="teal-accent-1" class="ma-0 pa-0">
+          <v-checkbox-btn label="Detailed" density="compact" v-model="isShowSummaryDetails" class="ma-0 pa-0"></v-checkbox-btn>
+        </v-sheet>
+        </div>
       <v-btn density="compact" icon="mdi-content-copy" @Click = "linkCopy"></v-btn>
       <v-btn density="compact" icon="mdi-share-variant-outline" @Click = "linkShare"></v-btn>     
       <v-btn class="me-auto" density="compact" icon="mdi-qrcode" @click = "showQR = !showQR; linkURL;"></v-btn>
@@ -424,19 +544,34 @@ onBeforeMount(() => {
     <v-dialog v-model="showDetails" width="auto" class="ma-1 pa-1">
       <v-container class="flex-row ma-0 pa-0 me-auto">
         <v-card>
-            <v-card-title class="d-flex justify-space-between align-center">
-              <v-label density="" class="text-h5 text-medium-emphasis ps-2">Select a person</v-label>
+            <v-card-title class="d-flex justify-space-between align-top ma-0 pa-0">
+              <!-- <v-label density="" class="text-h5 text-medium-emphasis ps-2">Select a person</v-label> -->
+              <v-select
+                backgroundColor="none"
+                v-model="iShowDetailsIndex" density="compact" class="mb-0 pa-0"
+                :items = arrPersons
+                :itemProps = "(item) => {
+                  return {
+                    title: item.name,
+                    value:arrPersons.findIndex((i)=>{return i.name == item.name})
+                  }
+                }"                                
+                label="Select A Person"
+                :onchange="(()=>{arrShowFilterPayTo=[...Array(arrPersons.length).keys().filter((f,i)=>(i!=iShowDetailsIndex))]})" 
+                :onload="(()=>{if(!iShowDetailsIndex)iShowDetailsIndex = 0;arrShowFilterPayTo=[...Array(arrPersons.length).keys().filter((f,i)=>(i!=iShowDetailsIndex))]})()"
+              ></v-select>      
               <v-icon class="right-0" @click="showDetails = false" icon="mdi-close" density="compact"></v-icon>  
             </v-card-title>
-            <v-divider class="mb-1"></v-divider>            
-              <v-radio-group inline v-model="iShowDetailsIndex" density="compact" class="mb-0 pa-0"
+            <v-divider class="mb-1"></v-divider>      
+              
+              <!-- <v-radio-group inline v-model="iShowDetailsIndex" density="compact" class="mb-0 pa-0"
               :onchange="(()=>{arrShowFilterPayTo=[...Array(arrPersons.length).keys().filter((f,i)=>(i!=iShowDetailsIndex))]})" 
               :onload="(()=>{if(!iShowDetailsIndex)iShowDetailsIndex = 0;arrShowFilterPayTo=[...Array(arrPersons.length).keys().filter((f,i)=>(i!=iShowDetailsIndex))]})()"
               >
                 <template v-for="(person, indexSharePerson) in arrPersons" class="ma-0 pa-0 me-auto">
                   <v-radio :label="person.name" :value="indexSharePerson" density="compact" class="mb-0 pa-0"></v-radio>  
                 </template>
-              </v-radio-group>
+              </v-radio-group> -->
             <v-divider class="mb-0"></v-divider>            
           <v-expand-transition group="false">
           <v-data-table
@@ -444,7 +579,7 @@ onBeforeMount(() => {
             density="compact"          
             hide-default-footer
             items-per-page="-1"  
-            search="''"          
+            search="''"            
             :custom-filter="(value, query, item)=>{return arrShowFilterPayTo.includes(Array.from(arrPersons,(x)=>x.name).indexOf(value))}"            
             :headers="[{ key: 'food', title: 'Food', align: 'start', sortable: true, filterable : false},{ key: 'per', title: 'Cost', value: item => `${Math.round(item.per * 100)/100}`, filterable : false}, {key: 'to', title:'To'}]"
             :items="arrPersons.reduce((accumulator, currentValue, currentIndex) => {
@@ -459,6 +594,15 @@ onBeforeMount(() => {
             <!-- :group-by="[{key: 'to',order: 'asc',},]" -->
             <!--header for grouping: {key:'data-table-group', title:'Pay To'} -->
           </v-expand-transition>          
+          
+          <template v-for="(foodItem, indexFood) in arrPersons.reduce((accumulator, currentValue, currentIndex) => {
+              var filtered = currentValue.arrFoodItems.filter((f)=>(f.arrShare.includes(iShowDetailsIndex) && currentIndex != iShowDetailsIndex));
+              filtered.forEach(element => {
+                element.to = arrPersons[currentIndex].name;
+              });
+              return accumulator.concat(filtered);
+            },[])" v-bind:key="indexFood">
+          </template>
         </v-card>         
       </v-container>   
       <v-container class="flex-row ma-0 pa-0 me-auto">
