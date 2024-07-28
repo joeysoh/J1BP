@@ -1,7 +1,7 @@
 <script setup>
 import { useStore } from "./../store.js";
 import { useRouter, useRoute} from 'vue-router'
-import {onBeforeMount, onMounted, ref, computed, watch } from 'vue'
+import {onBeforeMount, onMounted, ref, toRef, computed, watch } from 'vue'
 import { useDisplay } from 'vuetify'
 import QRCode from 'qrcode'
 import crc from 'crc';
@@ -20,8 +20,9 @@ const store = useStore();
 const colorRequired = ref("#FFB6C1");
 const data = store.data;
 const canvas = ref(null);
-const iShowDetailsIndex = ref(null);
-const arrShowFilterPayTo=ref([]);
+const iTmp = ref(0);//temp variable. Creating a variable in-line doesn't work. Therefore temp variables created in setup.
+const iShowDetailsIndex = ref(0);
+const iShowFilterPayTo=ref(1);
 const isShowSummaryDetails = ref(false);
 
 var arrPersons = ref([]);
@@ -490,7 +491,7 @@ onBeforeMount(() => {
         <v-sheet color="teal-accent-1" class="ma-0 pa-1">
           Amount Owed:          
         </v-sheet>
-        <v-sheet v-if = "isShowSummaryDetails" color="teal-accent-1"  @click = "showDetails = true" class="ma-0 pa-1">              
+        <v-sheet v-show = "isShowSummaryDetails" color="teal-accent-1"  @click = "showDetails = true" class="ma-0 pa-1">              
               <template v-for="(arrPaymentAmount, indexPerson) in arrCalculate">
                 <v-divider/>
                 <v-expand-transition>
@@ -506,7 +507,7 @@ onBeforeMount(() => {
                 </v-expand-transition>          
               </template>           
         </v-sheet>           
-        <v-sheet v-else color="teal-accent-1"  @click = "showDetails = true" class="ma-0 pa-1">              
+        <v-sheet v-show = "!isShowSummaryDetails" color="teal-accent-1"  @click = "showDetails = true" class="ma-0 pa-1">              
               <template v-for="(arrPaymentAmount, indexPerson) in arrCalculateWithLeastTrx">
                 <v-divider/>
                 <v-expand-transition>
@@ -544,8 +545,7 @@ onBeforeMount(() => {
     <v-dialog v-model="showDetails" width="auto" class="ma-1 pa-1">
       <v-container class="flex-row ma-0 pa-0 me-auto">
         <v-card>
-            <v-card-title class="d-flex justify-space-between align-top ma-0 pa-0">
-              <!-- <v-label density="" class="text-h5 text-medium-emphasis ps-2">Select a person</v-label> -->
+            <v-card-title class="d-flex justify-space-between align-top ma-0 pa-0">              
               <v-select
                 backgroundColor="none"
                 v-model="iShowDetailsIndex" density="compact" class="mb-0 pa-0"
@@ -556,70 +556,78 @@ onBeforeMount(() => {
                     value:arrPersons.findIndex((i)=>{return i.name == item.name})
                   }
                 }"                                
-                label="Select A Person"
-                :onchange="(()=>{arrShowFilterPayTo=[...Array(arrPersons.length).keys().filter((f,i)=>(i!=iShowDetailsIndex))]})" 
-                :onload="(()=>{if(!iShowDetailsIndex)iShowDetailsIndex = 0;arrShowFilterPayTo=[...Array(arrPersons.length).keys().filter((f,i)=>(i!=iShowDetailsIndex))]})()"
+                label="Person Paying"
+                @update:modelValue="$event => {if(iShowFilterPayTo == iShowDetailsIndex) 
+                    iShowFilterPayTo=(iShowDetailsIndex+1)%(arrPersons.length)}"
+                onload = "console.log('onload')"                
               ></v-select>      
               <v-icon class="right-0" @click="showDetails = false" icon="mdi-close" density="compact"></v-icon>  
-            </v-card-title>
-            <v-divider class="mb-1"></v-divider>      
-              
-              <!-- <v-radio-group inline v-model="iShowDetailsIndex" density="compact" class="mb-0 pa-0"
-              :onchange="(()=>{arrShowFilterPayTo=[...Array(arrPersons.length).keys().filter((f,i)=>(i!=iShowDetailsIndex))]})" 
-              :onload="(()=>{if(!iShowDetailsIndex)iShowDetailsIndex = 0;arrShowFilterPayTo=[...Array(arrPersons.length).keys().filter((f,i)=>(i!=iShowDetailsIndex))]})()"
-              >
-                <template v-for="(person, indexSharePerson) in arrPersons" class="ma-0 pa-0 me-auto">
-                  <v-radio :label="person.name" :value="indexSharePerson" density="compact" class="mb-0 pa-0"></v-radio>  
-                </template>
-              </v-radio-group> -->
-            <v-divider class="mb-0"></v-divider>            
+            </v-card-title>            
           <v-expand-transition group="false">
           <v-data-table
             style="max-height: 50vh;"
             density="compact"          
             hide-default-footer
-            items-per-page="-1"  
-            search="''"            
-            :custom-filter="(value, query, item)=>{return arrShowFilterPayTo.includes(Array.from(arrPersons,(x)=>x.name).indexOf(value))}"            
-            :headers="[{ key: 'food', title: 'Food', align: 'start', sortable: true, filterable : false},{ key: 'per', title: 'Cost', value: item => `${Math.round(item.per * 100)/100}`, filterable : false}, {key: 'to', title:'To'}]"
-            :items="arrPersons.reduce((accumulator, currentValue, currentIndex) => {
-              var filtered = currentValue.arrFoodItems.filter((f)=>(f.arrShare.includes(iShowDetailsIndex) && currentIndex != iShowDetailsIndex));
-              filtered.forEach(element => {
-                element.to = arrPersons[currentIndex].name;
-              });
-              return accumulator.concat(filtered);
-            },[])">
-          </v-data-table>
-            <!-- search must be included as an option for custom filter to work-->
-            <!-- :group-by="[{key: 'to',order: 'asc',},]" -->
-            <!--header for grouping: {key:'data-table-group', title:'Pay To'} -->
-          </v-expand-transition>          
-          
-          <template v-for="(foodItem, indexFood) in arrPersons.reduce((accumulator, currentValue, currentIndex) => {
-              var filtered = currentValue.arrFoodItems.filter((f)=>(f.arrShare.includes(iShowDetailsIndex) && currentIndex != iShowDetailsIndex));
-              filtered.forEach(element => {
-                element.to = arrPersons[currentIndex].name;
-              });
-              return accumulator.concat(filtered);
-            },[])" v-bind:key="indexFood">
-          </template>
+            items-per-page="-1"      
+            :no-data-text="'No Food Items from ' + arrPersons[iShowFilterPayTo].name"
+            :headers="
+              [ { key: 'food', title: 'Food', align: 'start', sortable: true, filterable : false},
+                { key: 'per', title: 'Cost', value: item => `${Math.round(item.per * 100)/100}`, filterable : false, align : 'end'}]"
+            :items="arrPersons[iShowFilterPayTo].arrFoodItems.filter((f)=>(f.arrShare.includes(iShowDetailsIndex)))">
+          </v-data-table>          
+          </v-expand-transition>
         </v-card>         
       </v-container>   
       <v-container class="flex-row ma-0 pa-0 me-auto">
         <v-card>
-        <v-expand-transition group="false">
-            <v-chip-group v-model="arrShowFilterPayTo" column multiple density="compact">
-              <template v-for="n in [...Array(arrPersons.length).keys()]" v-bind:key="index">
-                <v-chip v-show="n!=iShowDetailsIndex" :text = "arrPersons[n].name" filter density="compact"></v-chip>
-              </template>              
-            </v-chip-group>                
-          </v-expand-transition>   
-        </v-card> 
-      </v-container> 
+          <v-divider/>
+          <v-row class="text-right">            
+            <v-col>              
+              <v-sheet color="teal-accent-1" class="ma-0 pa-1 text-xs-right">                
+                {{Math.round(sumArrayAttribute(arrPersons[iShowFilterPayTo].arrFoodItems.filter((f)=>(f.arrShare.includes(iShowDetailsIndex))),'per')*100)/100}}
+                <v-icon icon="mdi-arrow-down-thin"></v-icon> 
+                <br/>          
+                
+                {{Math.round(sumArrayAttribute(arrPersons[iShowDetailsIndex].arrFoodItems.filter((f)=>(f.arrShare.includes(iShowFilterPayTo))),'per')*100)/100}}
+                <v-icon icon="mdi-arrow-up-thin"></v-icon> 
+                <br/>
+                <v-divider/>
+                {{Math.round(
+                  (sumArrayAttribute(arrPersons[iShowFilterPayTo].arrFoodItems.filter((f)=>(f.arrShare.includes(iShowDetailsIndex))),'per') - 
+                  sumArrayAttribute(arrPersons[iShowDetailsIndex].arrFoodItems.filter((f)=>(f.arrShare.includes(iShowFilterPayTo))),'per'))
+                  *100)/100}}
+                <v-icon icon="mdi-scale-balance"></v-icon> 
+              </v-sheet>
+            </v-col>
+          </v-row>
+          <v-divider/>
+          <v-card-actions class="d-flex justify-space-between align-top ma-0 pa-0">
+          <v-select
+                backgroundColor="none"
+                v-model="iShowFilterPayTo" density="compact" class="mb-0 pa-0"
+                :items = "arrPersons.filter((f)=>(f.name != arrPersons[iShowDetailsIndex].name))"
+                :itemProps = "(p) => {
+                  return {
+                    title: p.name,
+                    value: arrPersons.findIndex((i)=>{return i.name == p.name})
+                  }
+                }"                                
+                label="Person Receiving">
+            </v-select>
+            
+            
+            <v-icon class="left-0 pa-0 ma-0"
+                @click="
+                  iTmp = iShowDetailsIndex;
+                  iShowDetailsIndex = iShowFilterPayTo; 
+                  iShowFilterPayTo = iTmp;"
+                icon="mdi-swap-vertical" density="compact"/>
+              </v-card-actions>
+        </v-card>
+      </v-container>
     </v-dialog>
   </v-form>  
 </v-container>  
-
 </template>
 <style scoped>
 </style>
