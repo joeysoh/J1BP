@@ -515,7 +515,7 @@ onBeforeMount(() => {
                     {{ arrPersons[indexPerson].name }}
                     <template v-for="(paymentAmount,indexPaymentAmount) in arrPaymentAmount">
                       
-                        <div v-show ="indexPaymentAmount != indexPerson && paymentAmount > 0">{{ paymentAmount.toFixed(2) }} 
+                        <div v-show ="indexPaymentAmount != indexPerson && paymentAmount.toFixed(2) > 0">{{ paymentAmount.toFixed(2) }} 
                           <v-icon icon="mdi-arrow-right-thin"></v-icon> 
                           {{ arrPersons[indexPaymentAmount].name }}</div>                    
                     </template>                
