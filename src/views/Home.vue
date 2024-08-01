@@ -20,10 +20,10 @@ const rulesCount = ref([
           if (value) return true
           return 'Number is required.'
         },
-        value => {
-          if (value > 1 && value <10) return true
-          return '2 - 9 only.'
-        }
+        // value => {
+        //   if (value > 1 && value <10) return true
+        //   return '2 - 9 only.'
+        // }
 ]);
 
 onBeforeMount(() => {  
@@ -156,10 +156,11 @@ export default {
                 variant="outlined"
                 v-model="store.iCountPersons"
                 :rules="rulesCount"/>                         
-          <v-btn class = "mt-1" @click="store.decrementPersons()" icon="$minus" density="compact"/>
-          <v-btn class = "mt-1" @click="store.incrementPersons()" icon="$plus" density="compact"/>
-          <v-btn class = "mt-1" @click="goToDetails" density="compact" :disabled="!valid">GO!</v-btn>
+          <!-- <v-btn class = "mt-1" @click="store.decrementPersons()" icon="$minus" density="compact"/>
+          <v-btn class = "mt-1" @click="store.incrementPersons()" icon="$plus" density="compact"/> -->
+          <v-btn class = "ml-4 pa-0" style="height: 38px;" @click="goToDetails" density="compact" :disabled="!valid">GO!</v-btn>
         </v-row>
+        <br/><br/>
         <v-row class="flex-row" style="max-height: 40px;">
         <v-checkbox label="show Service (SVC) & GST Charge (GST)" density="compact" v-model="store.showSVCGST" class="ma-0 pa-0"></v-checkbox>
       </v-row>

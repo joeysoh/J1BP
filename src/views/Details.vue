@@ -235,7 +235,7 @@ const arrCalculateWithLeastTrx = computed(() =>{
   }
   
   console.log(arrPersonPayPerson[1]);
-  var iBanker = arrNumberOfPayor.indexOf(Math.max(...arrNumberOfPayor)); //person index is banker. Banker is the middleman for all transactions. Max # of transactions will be arrPerson.Length - 1 via banker
+  var iBanker = arrNumberOfPayor.indexOf(Math.min(...arrNumberOfPayor)); //person index is banker. Banker is the middleman for all transactions. Max # of transactions will be arrPerson.Length - 1 via banker
   console.log(`iBanker: ${iBanker}`);
   for(var i = 0; i < arrPersonPayPerson.length; i++){
     for(var j = 0; j < arrPersonPayPerson.length; j++){
@@ -580,49 +580,106 @@ onBeforeMount(() => {
       </v-container>   
       <v-container class="flex-row ma-0 pa-0 me-auto">
         <v-card>
+          <v-divider/>          
+            <v-card-actions class="d-flex justify-space-between align-top ma-0 pa-0">
+              <v-select
+                    backgroundColor="none"
+                    v-model="iShowFilterPayTo" density="compact" class="mb-0 pa-0"
+                    :items = "arrPersons.filter((f)=>(f.name != arrPersons[iShowDetailsIndex].name))"
+                    :itemProps = "(p) => {
+                      return {
+                        title: p.name,
+                        value: arrPersons.findIndex((i)=>{return i.name == p.name})
+                      }
+                    }"                                
+                    label="Person Receiving">
+                </v-select>
+                <v-icon class="left-0 pa-0 ma-0"
+                    @click="
+                      iTmp = iShowDetailsIndex;
+                      iShowDetailsIndex = iShowFilterPayTo; 
+                      iShowFilterPayTo = iTmp;"
+                    icon="mdi-swap-vertical" density="compact"/>
+            </v-card-actions>
           <v-divider/>
           <v-row class="text-right">            
             <v-col>              
-              <v-sheet color="teal-accent-1" class="ma-0 pa-1 text-xs-right">                
-                {{Math.round(sumArrayAttribute(arrPersons[iShowFilterPayTo].arrFoodItems.filter((f)=>(f.arrShare.includes(iShowDetailsIndex))),'per')*100)/100}}
-                <v-icon icon="mdi-arrow-down-thin"></v-icon> 
-                <br/>          
-                
-                {{Math.round(sumArrayAttribute(arrPersons[iShowDetailsIndex].arrFoodItems.filter((f)=>(f.arrShare.includes(iShowFilterPayTo))),'per')*100)/100}}
-                <v-icon icon="mdi-arrow-up-thin"></v-icon> 
-                <br/>
-                <v-divider/>
-                {{Math.round(
+              <v-sheet color="teal-accent-1" class="ma-0 pa-1 text-xs-right">
+                <table>
+                  <tr>
+                    <td rowspan="4">
+                      {{arrPersons[iShowDetailsIndex].name}}
+                    </td>
+                    <td>
+                      <v-icon icon="mdi-arrow-right-thin"></v-icon> 
+                    </td>
+                    <td>
+                      {{Math.round(sumArrayAttribute(arrPersons[iShowFilterPayTo].arrFoodItems.filter((f)=>(f.arrShare.includes(iShowDetailsIndex))),'per')*100)/100}}
+                    </td>
+                    <td>
+                      <v-icon icon="mdi-arrow-right-thin"></v-icon> 
+                    </td>
+                    <td rowspan="4">
+                      {{arrPersons[iShowFilterPayTo].name}}
+                    </td>
+                  </tr>
+                  <tr>
+                    <!-- <td>
+                      {{arrPersons[iShowDetailsIndex].name}}
+                    </td> -->
+                    <td>
+                      <v-icon icon="mdi-arrow-left-thin"></v-icon> 
+                    </td>
+                    <td>
+                      {{Math.round(sumArrayAttribute(arrPersons[iShowDetailsIndex].arrFoodItems.filter((f)=>(f.arrShare.includes(iShowFilterPayTo))),'per')*100)/100}}
+                    </td>
+                    <td>
+                      <v-icon icon="mdi-arrow-left-thin"></v-icon> 
+                    </td>
+                    <!--<td>
+                      {{arrPersons[iShowFilterPayTo].name}}
+                    </td>-->
+                  </tr>
+                  <tr>                    
+                    <td colspan="3">
+                      <v-divider :thickness="3" :color="black"/>
+                    </td>                    
+                  </tr>
+                  <tr v-if="Math.round(
+                  (sumArrayAttribute(arrPersons[iShowFilterPayTo].arrFoodItems.filter((f)=>(f.arrShare.includes(iShowDetailsIndex))),'per') - 
+                  sumArrayAttribute(arrPersons[iShowDetailsIndex].arrFoodItems.filter((f)=>(f.arrShare.includes(iShowFilterPayTo))),'per'))
+                  *100)/100>0">
+                    <td>
+                      <v-icon icon="mdi-arrow-right-thin"></v-icon> 
+                    </td>
+                    <td>
+                      {{Math.round(
                   (sumArrayAttribute(arrPersons[iShowFilterPayTo].arrFoodItems.filter((f)=>(f.arrShare.includes(iShowDetailsIndex))),'per') - 
                   sumArrayAttribute(arrPersons[iShowDetailsIndex].arrFoodItems.filter((f)=>(f.arrShare.includes(iShowFilterPayTo))),'per'))
                   *100)/100}}
-                <v-icon icon="mdi-scale-balance"></v-icon> 
+                    </td>
+                    <td>
+                      <v-icon icon="mdi-arrow-right-thin"></v-icon> 
+                    </td>
+                  </tr>
+                  <tr v-else>
+                    <td>
+                      <v-icon icon="mdi-arrow-left-thin"></v-icon> 
+                    </td>
+                    <td>
+                      {{Math.round(
+                  (sumArrayAttribute(arrPersons[iShowDetailsIndex].arrFoodItems.filter((f)=>(f.arrShare.includes(iShowFilterPayTo))),'per') -
+                  sumArrayAttribute(arrPersons[iShowFilterPayTo].arrFoodItems.filter((f)=>(f.arrShare.includes(iShowDetailsIndex))),'per'))
+                  *100)/100}}
+                    </td>
+                    <td>
+                      <v-icon icon="mdi-arrow-left-thin"></v-icon> 
+                    </td>
+                  </tr>
+                </table>
               </v-sheet>
             </v-col>
           </v-row>
-          <v-divider/>
-          <v-card-actions class="d-flex justify-space-between align-top ma-0 pa-0">
-          <v-select
-                backgroundColor="none"
-                v-model="iShowFilterPayTo" density="compact" class="mb-0 pa-0"
-                :items = "arrPersons.filter((f)=>(f.name != arrPersons[iShowDetailsIndex].name))"
-                :itemProps = "(p) => {
-                  return {
-                    title: p.name,
-                    value: arrPersons.findIndex((i)=>{return i.name == p.name})
-                  }
-                }"                                
-                label="Person Receiving">
-            </v-select>
-            
-            
-            <v-icon class="left-0 pa-0 ma-0"
-                @click="
-                  iTmp = iShowDetailsIndex;
-                  iShowDetailsIndex = iShowFilterPayTo; 
-                  iShowFilterPayTo = iTmp;"
-                icon="mdi-swap-vertical" density="compact"/>
-              </v-card-actions>
         </v-card>
       </v-container>
     </v-dialog>
