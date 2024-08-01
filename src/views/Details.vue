@@ -310,7 +310,7 @@ watch(canvas, async(newCanvas,oldCanvas) => {
 });
 
 function addPerson() {
-  arrPersons.value.push({name: "Name " + (arrPersons.value.length + 1), hasGST: false, hasSVC:false, arrFoodItems: [], newFood : null, newCost: null});
+  arrPersons.value.push({name: "Name " + (arrPersons.value.length + 1), hasGST: false, hasSVC:false, arrFoodItems: []});  
 }
 
 function removeFood(indexPerson, indexFood){
@@ -323,14 +323,12 @@ function toggleShare(indexPerson, indexFood){
 
 function addFood(index) {
   arrPersons.value[index].arrFoodItems.push({
-    food: arrPersons.value[index].newFood
-    , cost: parseFloat(arrPersons.value[index].newCost)
+    food: null
+    , cost: null
     , showShare: false, arrShare:[...Array(arrPersons.value.length).keys()]
     , per:0
-    , totalCost:parseFloat(arrPersons.value[index].newCost)
-  });//per, totalCost, svc and gst to be computed by arrCalculate 
-  arrPersons.value[index].newFood = null;
-  arrPersons.value[index].newCost = null;
+    , totalCost:0
+  });//per, totalCost, svc and gst to be computed by arrCalculate   
 }
 
 onBeforeMount(() => {      
@@ -340,7 +338,10 @@ onBeforeMount(() => {
     arrPersons = ref([]);
     for(let  i = 0; i< store.iCountPersons; i++){
       addPerson();
-    }  
+    }
+    for(let  i = 0; i< store.iCountPersons; i++){
+      addFood(i);    
+    }
   }
 })
 </script>
@@ -446,11 +447,12 @@ onBeforeMount(() => {
                         <v-checkbox :label="person.name" :value = "indexSharePerson" v-model="foodItem.arrShare" density="compact"></v-checkbox>                        
                       </v-sheet>
                     </template>
-                    <v-icon class="mt-2" icon="mdi-account"/>
+                    <v-icon class="pl-1 mt-2" icon="mdi-account"/>
                     <!-- :bg-color="foodItem.arrShare.length > 0 ? 'none' : colorRequired"  -->
                     <span 
                       :style="{color: foodItem.arrShare.length > 0 ? undefined : colorRequired}"
                       class="mt-2" width="100%">
+                      Per Pax: 
                       {{ foodItem.arrShare.length > 0 ? ('$' + foodItem.per ? Math.round(foodItem.per*100)/100 : 0) : 'Invalid' }}
                     </span>
                     <v-divider/>
@@ -458,31 +460,8 @@ onBeforeMount(() => {
               </v-expand-transition>                     
               </v-container>            
           </template>
-          </v-expand-transition>
-
-          <v-container>
-            <v-row class="flex-row">
-                <v-btn class="mt-2" @click="addFood(indexPerson)" icon="$plus" density="compact" variant="outlined" 
-                    :disabled = "((person.newFood ?? '').trim() == '') || (person.newCost ?? 0) == 0"/>                
-                <v-text-field style="width:30%"
-                          :bg-color="person.newFood?.length > 0 || person.newCost > 0 ? colorRequired:'none'"
-                          density="compact"
-                          placeholder="Item Name"                          
-                          variant="outlined"
-                          v-model="person.newFood"/>
-                <v-text-field style="width:30%"
-                      :bg-color="person.newFood?.length > 0 || person.newCost > 0 ? colorRequired:'none'"
-                      density="compact"
-                      placeholder="Cost"
-                      prepend-inner-icon="mdi-currency-usd"
-                      type="number"
-                      variant="outlined"
-                      v-model.number="person.newCost"/>                
-                  <v-btn class="mt-2" @click="person.newFood= null; person.newCost= null" icon="mdi-close" density="compact" variant="outlined" 
-                    :disabled = "((person.newFood ?? '').trim() == '') && (person.newCost ?? 0 == 0)"/>       
-              </v-row>
-            </v-container>
-            
+          <v-btn class="mt-2" @click="addFood(indexPerson)" icon="$plus" density="compact" variant="outlined"/>
+          </v-expand-transition>            
         </v-sheet>
       </template>
     </v-row>    

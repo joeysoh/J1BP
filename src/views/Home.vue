@@ -150,6 +150,7 @@ export default {
         </v-row>
         <v-row class="flex-row" style="max-height: 40px;">
           <v-text-field
+                @focus="$event.target.select()"
                 density="compact"
                 placeholder="Persons"
                 prepend-inner-icon="mdi-account"
