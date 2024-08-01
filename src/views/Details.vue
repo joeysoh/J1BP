@@ -560,7 +560,7 @@ onBeforeMount(() => {
       <v-container class="flex-row ma-0 pa-0 me-auto">
         <v-card>
           <v-divider/>          
-            <v-card-actions class="d-flex justify-space-between align-top ma-0 pa-0">
+            <v-card-title class="d-flex justify-space-between align-top ma-0 pa-0">
               <v-select
                     backgroundColor="none"
                     v-model="iShowFilterPayTo" density="compact" class="mb-0 pa-0"
@@ -578,8 +578,8 @@ onBeforeMount(() => {
                       iTmp = iShowDetailsIndex;
                       iShowDetailsIndex = iShowFilterPayTo; 
                       iShowFilterPayTo = iTmp;"
-                    icon="mdi-swap-vertical" density="compact"/>
-            </v-card-actions>
+                    icon="mdi-swap-vertical" />                     
+              </v-card-title>
           <v-divider/>
           <v-row class="text-right">            
             <v-col>              
