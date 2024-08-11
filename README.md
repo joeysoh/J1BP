@@ -1,4 +1,4 @@
-#[J1BP](https://joeysoh.github.io/J1BP/)
+#[J1BP](https://joeysoh.github.io/J1BP/?)
 
 For Splitting Bills.
 
