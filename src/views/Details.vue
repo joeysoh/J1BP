@@ -552,7 +552,7 @@ onBeforeMount(() => {
             :headers="
               [ { key: 'food', title: 'Item', align: 'start', sortable: true, filterable : false},
                 { key: 'per', title: 'Cost', value: item => `${Math.round(item.per * 100)/100}`, filterable : false, align : 'end'}]"
-            :items="arrPersons[iShowFilterPayTo].arrFoodItems.filter((f)=>(f.arrShare.includes(iShowDetailsIndex)))">
+            :items="arrPersons[iShowFilterPayTo].arrFoodItems.filter((f)=>(f.arrShare.includes(iShowDetailsIndex) && f.food?.length > 0))">
           </v-data-table>          
           </v-expand-transition>
         </v-card>         
