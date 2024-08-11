@@ -467,6 +467,22 @@ onBeforeMount(() => {
     </v-row>    
     <v-row v-show = "arrTotalCost.reduce((accumulator, currentValue) => accumulator + currentValue,0)>0">      
         <div>
+          <v-sheet color="teal-accent-3" class="ma-0 pa-1">
+            Expenditure:          
+          </v-sheet>
+          <v-sheet color="teal-accent-3" class="ma-0 pa-1">              
+                <template v-for="(p,indexPerson) in arrPersons">
+                  <v-divider/>
+                  <v-expand-transition>
+                    <v-sheet>
+                      {{ arrPersons[indexPerson].name }} {{(arrPersons.reduce((accumulator,currentValue)=> 
+                        accumulator + sumArrayAttribute(currentValue.arrFoodItems.filter((f)=>(f.arrShare.includes(indexPerson) && f.food?.length > 0)),'per'),0)).toFixed(2)}}                                      
+                    </v-sheet>   
+                  </v-expand-transition>          
+                </template>           
+          </v-sheet>           
+        </div>
+        <div>
         <v-sheet color="teal-accent-1" class="ma-0 pa-1">
           Amount Owed:          
         </v-sheet>
@@ -491,7 +507,7 @@ onBeforeMount(() => {
                 <v-divider/>
                 <v-expand-transition>
                   <v-sheet v-show = "arrCalculateWithLeastTrx[indexPerson].reduce((accumulator, currentValue) => accumulator + currentValue,0).toFixed(2)> 0">
-                    {{ arrPersons[indexPerson].name }}
+                    {{ arrPersons[indexPerson].name }} 
                     <template v-for="(paymentAmount,indexPaymentAmount) in arrPaymentAmount">
                       
                         <div v-show ="indexPaymentAmount != indexPerson && paymentAmount.toFixed(2) > 0">{{ paymentAmount.toFixed(2) }} 
