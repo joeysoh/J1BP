@@ -424,7 +424,7 @@ onBeforeMount(() => {
                       <v-text-field style="width:30%"
                             :bg-color="foodItem.food?.length > 0 ? 'none' : colorRequired"
                             density="compact"
-                            placeholder="Food"                            
+                            placeholder="Item"                            
                             variant="outlined"                            
                             v-model="foodItem.food"/> 
                             
@@ -550,7 +550,7 @@ onBeforeMount(() => {
             items-per-page="-1"      
             :no-data-text="'No Food Items from ' + arrPersons[iShowFilterPayTo].name"
             :headers="
-              [ { key: 'food', title: 'Food', align: 'start', sortable: true, filterable : false},
+              [ { key: 'food', title: 'Item', align: 'start', sortable: true, filterable : false},
                 { key: 'per', title: 'Cost', value: item => `${Math.round(item.per * 100)/100}`, filterable : false, align : 'end'}]"
             :items="arrPersons[iShowFilterPayTo].arrFoodItems.filter((f)=>(f.arrShare.includes(iShowDetailsIndex)))">
           </v-data-table>          
