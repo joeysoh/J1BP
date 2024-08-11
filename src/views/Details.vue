@@ -465,7 +465,7 @@ onBeforeMount(() => {
         </v-sheet>
       </template>
     </v-row>    
-    <v-row v-show = "arrTotalCost.reduce((accumulator, currentValue) => accumulator + currentValue,0)>0">      
+    <v-row v-show = "arrTotalCost.reduce((accumulator, currentValue) => accumulator + currentValue,0)>0">              
         <div>
           <v-sheet color="teal-accent-3" class="ma-0 pa-1">
             Expenditure:          
@@ -521,11 +521,16 @@ onBeforeMount(() => {
         <v-sheet color="teal-accent-1" class="ma-0 pa-0">
           <v-checkbox-btn label="Detailed" density="compact" v-model="isShowSummaryDetails" class="ma-0 pa-0"></v-checkbox-btn>
         </v-sheet>
-        </div>
-      <v-btn density="compact" icon="mdi-content-copy" @Click = "linkCopy"></v-btn>
-      <v-btn density="compact" icon="mdi-share-variant-outline" @Click = "linkShare"></v-btn>     
-      <v-btn class="me-auto" density="compact" icon="mdi-qrcode" @click = "showQR = !showQR; linkURL;"></v-btn>
-      <span class="mx-2" width="100%"><v-icon icon="mdi-sigma"/>{{ Math.round(arrTotalCost.reduce((accumulator, currentValue) => accumulator + currentValue,0)*100)/100 }}</span>
+      </div>        
+      <div>
+        <v-sheet class="ma-0 pa-0">
+          <v-btn density="compact" icon="mdi-content-copy" @Click = "linkCopy"></v-btn>
+          <v-btn density="compact" icon="mdi-share-variant-outline" @Click = "linkShare"></v-btn>     
+          <v-btn class="me-auto" density="compact" icon="mdi-qrcode" @click = "showQR = !showQR; linkURL;"></v-btn>
+        </v-sheet>
+      
+        <span class="mx-2" width="100%"><v-icon icon="mdi-sigma"/>{{ Math.round(arrTotalCost.reduce((accumulator, currentValue) => accumulator + currentValue,0)*100)/100 }}</span>
+      </div>      
       <!-- <v-sheet @click = "showQR = !showQR;" :elevation="24"  class="position-absolute top-0 left-0" v-show = "showQR" rounded
         height="100%" width="100%" color="teal-lighten-3">          
       </v-sheet> -->      
