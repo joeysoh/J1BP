@@ -24,6 +24,7 @@ const iTmp = ref(0);//temp variable. Creating a variable in-line doesn't work. T
 const iShowDetailsIndex = ref(0);
 const iShowFilterPayTo=ref(1);
 const isShowSummaryDetails = ref(false);
+const iTab = ref(0)
 
 var arrPersons = ref([]);
 
@@ -394,7 +395,7 @@ onBeforeMount(() => {
 
   <v-container class="bg-surface-variant ma-0"><v-form>
     <v-row>      
-      <template v-for="(person, indexPerson) in arrPersons">        
+      <template v-if="store.iViewMode==0" v-for="(person, indexPerson) in arrPersons">        
         <v-sheet :class="mobile? 'my-1 py-1' : 'ma-1 pa-1'" :width="mobile? '100%': undefined">
           <v-container>
             <v-row class="flex-row" style="max-height: 40px;">
@@ -463,6 +464,100 @@ onBeforeMount(() => {
           <v-btn class="mt-2" @click="addFood(indexPerson)" icon="$plus" density="compact" variant="outlined"/>
           </v-expand-transition>            
         </v-sheet>
+      </template>
+      <template v-else>
+        <v-card>
+          <v-tabs style="max-height: 40px;"
+            v-model="iTab"
+            align-tabs="center"
+            bg-color="none"
+            stacked
+          >
+            <v-tab v-for="(person, indexPerson) in arrPersons" :key="indexPerson" :value="indexPerson" :density="compact" style="max-height: 40px;">
+              {{arrPersons[indexPerson].name}}
+              <!-- <v-icon icon="mdi-account"/> -->
+            </v-tab>            
+          </v-tabs>
+
+          <v-card-text class="text-center">
+            
+
+
+            <v-card :class="mobile? 'my-1 py-1 overflow-y-auto' : 'ma-1 pa-1 overflow-y-auto'" :width="mobile? '100%': undefined" height="50vh">              
+              <v-container>
+                <v-row class="flex-row" style="max-height: 40px;">
+                  <v-text-field @focus="$event.target.select()"
+                            style="width:30%"
+                            class="ma-0 pa-0 me-auto"
+                            :bg-color="arrPersons[iTab].name?.length > 0 ? 'none' : colorRequired"
+                            density="compact"
+                            placeholder="Name"
+                            prepend-inner-icon="mdi-account"
+                            variant="outlined"
+                            v-model="arrPersons[iTab].name"/>
+                  <span class="mt-2" v-show="!store.showSVCGST" width="100%"><v-icon icon="mdi-sigma"/>{{ Math.round(sumArrayAttribute(arrPersons[iTab].arrFoodItems, 'totalCost')*100)/100 }}</span>
+                </v-row>
+                <v-row v-show="store.showSVCGST" class="flex-row" style="max-height: 40px;">
+                  <v-checkbox label="SVC" density="compact" v-model="arrPersons[iTab].hasSVC" class="ma-0 pa-0"></v-checkbox>
+                  <v-checkbox label="GST" density="compact" v-model="arrPersons[iTab].hasGST" class="ma-0 pa-0 me-auto"></v-checkbox>                            
+                  <v-icon class="mt-2" icon="mdi-sigma"/><span class="mt-2" width="100%">{{ Math.round(sumArrayAttribute(arrPersons[iTab].arrFoodItems, 'totalCost')*100)/100 }}</span>
+                </v-row>
+              </v-container>          
+      
+              <v-expand-transition group="true">
+              <template v-for="(foodItem, indexFood) in arrPersons[iTab].arrFoodItems" v-bind:key="indexFood">            
+                  <v-container>                
+                      <v-row class="flex-row" style="max-height: 40px;">                   
+                          <v-btn class="mt-1" @click="toggleShare(iTab,indexFood)" icon="mdi-account-multiple" density="compact" :disabled="foodItem.arrShare.length<1" variant="outlined" :color="foodItem.arrShare.length == arrPersons.length ? 'none':'orange'"/>
+                          <v-text-field style="width:30%"
+                                :bg-color="foodItem.food?.length > 0 ? 'none' : colorRequired"
+                                density="compact"
+                                placeholder="Item"                            
+                                variant="outlined"                            
+                                v-model="foodItem.food"/> 
+                                
+                          <v-text-field style="width:30%"
+                                :bg-color="foodItem.cost > 0 ? 'none' : colorRequired"
+                                density="compact"
+                                placeholder="Cost"
+                                type="number"
+                                prepend-inner-icon="mdi-currency-usd"
+                                variant="outlined"
+                                v-model.number="foodItem.cost"/>                                           
+                        <v-btn class="mt-1" @click="removeFood(iTab,indexFood)" icon="$minus" density="compact" variant="outlined"/>                                                                     
+                      </v-row>
+                  
+                    <v-expand-transition>
+                    <v-row v-if="foodItem.showShare">
+                      <v-divider/>
+                        <template v-for="(person, indexSharePerson) in arrPersons" class="ma-0 pa-0 me-auto">
+                          <v-sheet>
+                            <v-checkbox :label="person.name" :value = "indexSharePerson" v-model="foodItem.arrShare" density="compact"></v-checkbox>                        
+                          </v-sheet>
+                        </template>
+                        <v-icon class="pl-1 mt-2" icon="mdi-account"/>
+                        <!-- :bg-color="foodItem.arrShare.length > 0 ? 'none' : colorRequired"  -->
+                        <span 
+                          :style="{color: foodItem.arrShare.length > 0 ? undefined : colorRequired}"
+                          class="mt-2" width="100%">
+                          Per Pax: 
+                          {{ foodItem.arrShare.length > 0 ? ('$' + foodItem.per ? Math.round(foodItem.per*100)/100 : 0) : 'Invalid' }}
+                        </span>
+                        <v-divider/>
+                    </v-row>             
+                  </v-expand-transition>                     
+                  </v-container>            
+              </template>
+              <v-btn class="mt-2" @click="addFood(iTab)" icon="$plus" density="compact" variant="outlined"/>
+              </v-expand-transition>            
+            </v-card>
+            
+
+
+
+            
+          </v-card-text>
+        </v-card>
       </template>
     </v-row>    
     <v-row v-show = "arrTotalCost.reduce((accumulator, currentValue) => accumulator + currentValue,0)>0">              

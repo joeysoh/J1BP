@@ -128,9 +128,9 @@ export default {
   },
 }
 </script>
-<template>      
+<template>
   <v-form v-model="valid">
-    <v-container v-if="hasData" class="bg-surface-variant ma-1">
+    <v-container v-if="hasData">
       <v-row>
           <v-col cols="12">
             <v-sheet class="flex-1-1-100 ma-0 pa-0">
@@ -139,8 +139,7 @@ export default {
           </v-col>
         </v-row>
     </v-container>
-    <v-container v-else 
-        class="bg-surface-variant ma-1">  
+    <v-container v-else>  
         <v-row>
           <v-col cols="12">
             <v-sheet class="flex-1-1-100 ma-2 pa-2">
@@ -162,9 +161,18 @@ export default {
           <v-btn class = "ml-4 pa-0" style="height: 38px;" @click="goToDetails" density="compact" :disabled="!valid">GO!</v-btn>
         </v-row>
         <br/><br/>
+        <v-row class="flex-row ma-0 pa-0" style="max-height: 40px;">
+          <v-select
+            label="View Mode"
+            :density="compact"
+            :items="[{title:'Simple', value:0}, {title:'Tabbed', value:1}]"
+            v-model="store.iViewMode"
+          ></v-select>
+        </v-row>
+        <br/><br/>
         <v-row class="flex-row" style="max-height: 40px;">
-        <v-checkbox label="show Service (SVC) & GST Charge (GST)" density="compact" v-model="store.showSVCGST" class="ma-0 pa-0"></v-checkbox>
-      </v-row>
+          <v-checkbox label="show Service (SVC) & GST Charge (GST)" density="compact" v-model="store.showSVCGST" class="ma-0 pa-0"></v-checkbox>        
+        </v-row>        
     </v-container>
   </v-form>
 </template>
