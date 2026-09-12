@@ -27,10 +27,31 @@ const rulesCount = ref([
 ]);
 
 onBeforeMount(() => {  
-  const params = (new URL(location)).searchParams;
-  var fullpath = window.location.href.substring(0,window.location.href.lastIndexOf("/"));
-  var data = params.get("data");  
-  var share = params.get("share");     
+  // const params = (new URL(location)).searchParams;
+  // var fullpath = window.location.href.substring(0,window.location.href.lastIndexOf("/"));
+  // var data = params.get("data");  
+  // var share = params.get("share");     
+// 1. Check standard query params (before the #) AND hash query params (after the #)
+  const url = new URL(location);
+  const searchParams = url.searchParams;
+  
+  // Extract from standard query first, fallback to checking the hash string
+  let data = searchParams.get("data");
+  let share = searchParams.get("share");
+
+  if (!data || !share) {
+    const hashString = location.hash; // e.g. "#/?share=..." or "#/?data=..."
+    const queryIndex = hashString.indexOf('?');
+    if (queryIndex !== -1) {
+      const hashParams = new URLSearchParams(hashString.substring(queryIndex));
+      if (!data) data = hashParams.get("data");
+      if (!share) share = hashParams.get("share");
+    }
+  }
+
+  var fullpath = window.location.href.substring(0, window.location.href.lastIndexOf("/"));
+  console.log(`share: ${share}`);
+  console.log(`data: ${data ? "Present" : "Null"}`);
 
   store.setFullPath(fullpath);  
   if(data){
