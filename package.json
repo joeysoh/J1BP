@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "build-github": "vite build --base=/J1BP/",
     "test:unit": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "export-ai": "cd agent && npx claude-code-exporter .."
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",

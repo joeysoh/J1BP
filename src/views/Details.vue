@@ -9,8 +9,10 @@ import { sumArrayAttribute, calculatePairwisePayments, calculateLeastTransaction
 
 
 //firebase
-import db from './../firebase';
-import { collection, addDoc, getDocs, getDoc, doc} from "firebase/firestore"; 
+import db, { rtdb } from './../firebase';
+import { collection, addDoc, getDocs, getDoc, doc} from "firebase/firestore";
+import { ref as dbRef, push, set as dbSet, onValue } from "firebase/database";
+import { currentUser, signIn } from './../auth.js';
 
 const { mobile, height, width } = useDisplay() //destructuring assignment
 const router = useRouter() //composition api reference
@@ -28,6 +30,10 @@ const isShowSummaryDetails = ref(false);
 const iTab = ref(0)
 
 var arrPersons = ref([]);
+const receiptFileInput = ref(null);
+const isUploadingReceipt = ref(false);
+const receiptError = ref('');
+const showReceiptError = ref(false);
 
 function linkCopy(){  
   var url = '';
@@ -169,6 +175,110 @@ function toggleShare(indexPerson, indexFood){
   arrPersons.value[indexPerson].arrFoodItems[indexFood].showShare = !arrPersons.value[indexPerson].arrFoodItems[indexFood].showShare;
 }
 
+function uploadReceipt() {
+  receiptFileInput.value?.click();
+}
+
+async function handleSignIn() {
+  try {
+    await signIn();
+  } catch (err) {
+    console.error('Sign-in failed:', err);
+  }
+}
+
+function resizeImageToDataUrl(file, maxDim = 1280, quality = 0.75) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Failed to load image'));
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > height && width > maxDim) {
+          height = Math.round(height * (maxDim / width));
+          width = maxDim;
+        } else if (height > maxDim) {
+          width = Math.round(width * (maxDim / height));
+          height = maxDim;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function applyReceiptItems(items) {
+  if (!Array.isArray(items) || items.length === 0 || arrPersons.value.length === 0) return;
+  const person = arrPersons.value[0];
+  if (person.arrFoodItems.length === 1 && !person.arrFoodItems[0].food && !person.arrFoodItems[0].cost) {
+    person.arrFoodItems.splice(0, 1);
+  }
+  for (const item of items) {
+    person.arrFoodItems.push({
+      food: item.name || null,
+      cost: item.price > 0 ? item.price : null,
+      showShare: false,
+      arrShare: [...Array(arrPersons.value.length).keys()],
+      per: 0,
+      totalCost: 0,
+    });
+  }
+}
+
+const RECEIPT_TIMEOUT_MS = 120000;
+
+async function onReceiptFileSelected(event) {
+  const file = event.target.files?.[0];
+  event.target.value = '';
+  if (!file) return;
+
+  isUploadingReceipt.value = true;
+  receiptError.value = '';
+
+  let unsubscribe = null;
+  let timeoutId = null;
+  function finish(errorMessage) {
+    if (unsubscribe) unsubscribe();
+    if (timeoutId) clearTimeout(timeoutId);
+    isUploadingReceipt.value = false;
+    if (errorMessage) {
+      receiptError.value = errorMessage;
+      showReceiptError.value = true;
+    }
+  }
+
+  try {
+    const dataUrl = await resizeImageToDataUrl(file);
+    const entryRef = push(dbRef(rtdb, `receipts/${currentUser.value.uid}`));
+    await dbSet(entryRef, {
+      email: currentUser.value.email,
+      image: dataUrl,
+      status: 'pending',
+      createdAt: Date.now(),
+    });
+
+    timeoutId = setTimeout(() => finish('Timed out waiting for receipt to be processed'), RECEIPT_TIMEOUT_MS);
+    unsubscribe = onValue(entryRef, (snapshot) => {
+      const entry = snapshot.val();
+      if (entry && entry.status === 'done') {
+        applyReceiptItems(entry.items);
+        finish();
+      }
+    });
+  } catch (err) {
+    console.error('Receipt upload failed:', err);
+    finish(err.message || 'Failed to process receipt');
+  }
+}
+
 function addFood(index) {
   arrPersons.value[index].arrFoodItems.push({
     food: null
@@ -201,10 +311,14 @@ onBeforeMount(() => {
       {{ store.iCountPersons}}  People      
       </span>
       <span>
+        <v-btn v-if="!currentUser" @click="handleSignIn" density="compact" variant="outlined">Sign in</v-btn>
+        <span v-else class="mx-1 text-caption">{{ currentUser.email }}</span>
+        <input v-if="currentUser" ref="receiptFileInput" type="file" accept="image/*" capture="environment" style="display:none" @change="onReceiptFileSelected" />
+        <v-btn v-if="currentUser" @click="uploadReceipt" :loading="isUploadingReceipt" :disabled="isUploadingReceipt" density="compact" variant="outlined">+Receipt</v-btn>
         <v-btn v-if="store.data" density="compact" variant="outlined">
           <v-icon icon="mdi-arrow-left" density="compact" style="width:10%"></v-icon>
           <a :href="store.fullpath" style="color:white"><v-icon density="compact" style="width:10%"></v-icon>Reset</a>
-        </v-btn>
+        </v-btn>        
         <v-btn v-else @click="goToHome" density="compact" variant="outlined"><v-icon icon="mdi-arrow-left" density="compact" style="width:10%"></v-icon>Back</v-btn>                      
       </span>
     </v-row>                        
@@ -477,6 +591,8 @@ onBeforeMount(() => {
         height="100%" width="100%" color="teal-lighten-3">          
       </v-sheet> -->      
     </v-row>        
+
+    <v-snackbar v-model="showReceiptError" color="error" timeout="4000">{{ receiptError }}</v-snackbar>
 
     <v-dialog v-model="showQR" width="auto" @click = "showQR = !showQR;">
         <v-card>

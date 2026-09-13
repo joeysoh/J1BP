@@ -1,6 +1,7 @@
 node_modules/
 package-lock.json
 src/firebase.js
+.env
 
 # Playwright
 /test-results/
@@ -10,7 +11,10 @@ src/firebase.js
 /playwright/.auth/
 
 #agent code
-agent/
+agent/claude-prompts
 
 # deployment
 .vercel/
+
+# examples
+example.jpg
